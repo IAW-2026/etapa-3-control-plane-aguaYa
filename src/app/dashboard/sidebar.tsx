@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { mainNav, secondaryNav, type NavItem } from "@/lib/navigation"
 import { SignOutButton } from "@clerk/nextjs"
 import { LogOut } from "lucide-react"
-import ThemeToggle from "@/components/ThemeToggle"
+import ThemeToggle from "@/components/layout/ThemeToggle"
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   const Icon = item.icon
