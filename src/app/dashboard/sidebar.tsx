@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { mainNav, secondaryNav, type NavItem } from "@/lib/navigation"
+import { mainNav, navSections, type NavItem } from "@/lib/navigation"
 import { SignOutButton } from "@clerk/nextjs"
 import { LogOut } from "lucide-react"
 import ThemeToggle from "@/components/layout/ThemeToggle"
@@ -41,20 +41,25 @@ export default function Sidebar() {
         <ThemeToggle />
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
-        <p className="px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Seller App</p>
-        {mainNav.map((item) => (
-          <NavLink key={item.href} item={item} isActive={pathname === item.href} />
-        ))}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+        <p className="px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">General</p>
+        <NavLink item={mainNav[0]} isActive={pathname === mainNav[0].href} />
+        <NavLink item={mainNav[3]} isActive={pathname === mainNav[3].href} />
 
-        {secondaryNav.length > 0 && (
-          <>
-            <p className="mt-6 px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Próximamente</p>
-            {secondaryNav.map((item) => (
-              <NavLink key={item.href} item={item} isActive={pathname === item.href} />
+        {navSections.map((section) => (
+          <div key={section.title}>
+            <p className="mt-6 px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              {section.title}
+            </p>
+            {section.items.map((item) => (
+              <NavLink
+                key={item.href}
+                item={item}
+                isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
+              />
             ))}
-          </>
-        )}
+          </div>
+        ))}
       </nav>
 
       <div className="border-t border-slate-800 p-4">

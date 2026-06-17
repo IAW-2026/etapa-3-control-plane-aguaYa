@@ -2,21 +2,23 @@
 
 import { useState } from 'react'
 import Modal from '@/components/ui/Modal'
-import { updateProduct, toggleProduct } from '@/lib/actions/vendor'
+import { updateProduct, toggleProduct, deleteProduct } from '@/lib/actions/vendor'
 import type { ProductItem } from '@/lib/types'
-import { Loader2, ArrowLeftRight, ImageOff } from 'lucide-react'
+import { Loader2, ArrowLeftRight, Trash2, ImageOff } from 'lucide-react'
 
 type Props = {
   product: ProductItem
   open: boolean
   onClose: () => void
   onUpdate: (updated: ProductItem) => void
+  onDelete?: (id: string) => void
 }
 
-export default function ProductEditModal({ product, open, onClose, onUpdate }: Props) {
+export default function ProductEditModal({ product, open, onClose, onUpdate, onDelete }: Props) {
   const [form, setForm] = useState({ name: product.name, price: String(product.price), stock: String(product.stock), description: product.description ?? '', image: product.image ?? '' })
   const [saving, setSaving] = useState(false)
   const [toggling, setToggling] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -46,6 +48,21 @@ export default function ProductEditModal({ product, open, onClose, onUpdate }: P
       // error handled by toast from parent
     } finally {
       setToggling(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (!onDelete) return
+    if (!window.confirm(`¿Eliminar "${product.name}"? Esta acción no se puede deshacer.`)) return
+    setDeleting(true)
+    try {
+      await deleteProduct(product.id)
+      onDelete(product.id)
+      onClose()
+    } catch {
+      // error handled by toast from parent
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -92,10 +109,18 @@ export default function ProductEditModal({ product, open, onClose, onUpdate }: P
         </div>
 
         <div className="flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-700">
-          <button type="button" onClick={handleToggle} disabled={toggling} className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700">
-            <ArrowLeftRight className="h-4 w-4" />
-            {toggling ? 'Cambiando...' : product.isActive ? 'Desactivar' : 'Activar'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={handleToggle} disabled={toggling} className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700">
+              <ArrowLeftRight className="h-4 w-4" />
+              {toggling ? 'Cambiando...' : product.isActive ? 'Desactivar' : 'Activar'}
+            </button>
+            {onDelete && (
+              <button type="button" onClick={handleDelete} disabled={deleting} className="flex items-center gap-1.5 rounded-lg border border-red-300 px-3 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
+                <Trash2 className="h-4 w-4" />
+                {deleting ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <button type="button" onClick={onClose} disabled={saving} className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700">Cancelar</button>
             <button type="submit" disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50">

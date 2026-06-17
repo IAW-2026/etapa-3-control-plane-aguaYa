@@ -17,6 +17,10 @@
 /.next/
 /out/
 
+# Carpetas Locales
+
+/ArchivosLocales/
+
 # production
 /build
 
