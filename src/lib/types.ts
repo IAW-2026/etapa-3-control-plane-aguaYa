@@ -62,3 +62,34 @@ export type OrderItem = {
   items: OrderLineItem[]
   vendor?: { name: string; id: string }
 }
+
+/* Delivery App types */
+export type Driver = {
+  idChofer: number
+  nombre: string
+  telefono?: string
+  estado: string
+  disponible: boolean
+  zona?: { idZona: number; nombre: string }
+  vehiculo?: { idVehiculo: number; patente: string; tipo: string }
+  pedidosAsignados: number
+  idVendedor: string
+  nombreEmpresa?: string
+}
+
+export type Vehicle = {
+  idVehiculo: number
+  patente: string
+  tipo: string
+  capacidadBidones: number
+  estado: string
+  idVendedor: string
+  choferAsignado?: string
+}
+
+export type Zone = {
+  idZona: number
+  nombre: string
+  choferes: number
+  empresas: string[]
+}

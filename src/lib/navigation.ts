@@ -3,6 +3,9 @@ import {
   Store,
   Package,
   ShoppingCart,
+  Truck,
+  Car,
+  MapPin,
   type LucideIcon,
 } from "lucide-react"
 
@@ -19,12 +22,18 @@ export const mainNav: NavItem[] = [
   { label: "Pedidos", href: "/dashboard/orders", icon: ShoppingCart },
 ]
 
-export const secondaryNav: NavItem[] = [
-  // { label: "Compradores", href: "/buyers", icon: Users },
-  // { label: "Reclamos", href: "/claims", icon: AlertTriangle },
-  // { label: "Choferes", href: "/drivers", icon: Truck },
-  // { label: "Vehículos", href: "/vehicles", icon: Car },
-  // { label: "Transacciones", href: "/transactions", icon: CreditCard },
-  // { label: "Reseñas", href: "/reviews", icon: Star },
-  // { label: "FAQs", href: "/faqs", icon: HelpCircle },
+export const deliveryNav: NavItem[] = [
+  { label: "Choferes", href: "/dashboard/drivers", icon: Truck },
+  { label: "Vehículos", href: "/dashboard/vehicles", icon: Car },
+  { label: "Zonas", href: "/dashboard/zones", icon: MapPin },
+]
+
+export type NavSection = {
+  title: string
+  items: NavItem[]
+}
+
+export const navSections: NavSection[] = [
+  { title: "Seller App", items: mainNav.slice(1) },
+  { title: "Delivery App", items: deliveryNav },
 ]
