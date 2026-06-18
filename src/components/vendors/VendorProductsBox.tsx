@@ -3,138 +3,145 @@
 import { useState, useEffect, useCallback } from "react"
 import { getVendorProducts } from "@/lib/actions/vendor"
 import type { ProductItem } from "@/lib/types"
-import { Package, DollarSign, PackageCheck, ImageOff, ChevronLeft, ChevronRight } from "lucide-react"
-import VendorProductsSkeleton from "@/components/ui/loading/VendorProductsSkeleton"
+import { Package, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import ProductEditModal from "@/components/products/ProductEditModal"
-import { useToast } from "@/components/ui/ToastProvider"
 
 type Props = {
   vendorId: string
 }
 
-export default function VendorProductsBox({ vendorId }: Props) {
-  const [items, setItems] = useState<ProductItem[]>([])
-  const [page, setPage] = useState(1)
-  const [pageCount, setPageCount] = useState(1)
-  const [loading, setLoading] = useState(true)
-  const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null)
-  const limit = 5
-  const { showToast } = useToast()
+const PAGE_SIZE = 10
 
-  const fetch = useCallback(async (p: number) => {
+export default function VendorProductsBox({ vendorId }: Props) {
+  const [products, setProducts] = useState<ProductItem[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [selected, setSelected] = useState<ProductItem | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const load = useCallback(async (p: number) => {
     setLoading(true)
     try {
-      const res = await getVendorProducts(vendorId, { page: String(p), limit: String(limit) })
-      setItems(res.items ?? [])
-      setPageCount(res.pageCount ?? 1)
-      setPage(p)
+      const res = await getVendorProducts(vendorId, { page: String(p), pageSize: String(PAGE_SIZE) })
+      setProducts(res.items)
+      setTotal(res.total)
     } catch {
-      setItems([])
+      setProducts([])
+      setTotal(0)
     } finally {
       setLoading(false)
     }
   }, [vendorId])
 
-  useEffect(() => { fetch(1) }, [fetch])
+  useEffect(() => {
+    load(page)
+  }, [page, load])
 
-  function handleUpdate(updated: ProductItem) {
-    setItems((prev) => prev.map((p) => p.id === updated.id ? updated : p))
-    setSelectedProduct(updated)
-    showToast('success', 'Producto actualizado correctamente')
-  }
-
-  function handleDelete(id: string) {
-    setItems((prev) => prev.filter((p) => p.id !== id))
-    showToast('success', 'Producto eliminado correctamente')
+  function handleRowClick(product: ProductItem) {
+    setSelected(product)
+    setEditOpen(true)
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
-        <div className="flex items-center gap-2">
-          <Package className="h-5 w-5 text-blue-600" />
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100">Productos</h2>
-        </div>
-        {pageCount > 1 && (
-          <div className="flex items-center gap-1 text-xs text-slate-500">
-            <button
-              type="button"
-              disabled={page <= 1 || loading}
-              onClick={() => fetch(page - 1)}
-              className="rounded p-1 hover:bg-slate-100 disabled:opacity-30 dark:hover:bg-slate-700"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span>{page} / {pageCount}</span>
-            <button
-              type="button"
-              disabled={page >= pageCount || loading}
-              onClick={() => fetch(page + 1)}
-              className="rounded p-1 hover:bg-slate-100 disabled:opacity-30 dark:hover:bg-slate-700"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
-      <div className="divide-y divide-slate-100 dark:divide-slate-700">
-        {loading && <VendorProductsSkeleton rows={limit} />}
-        {!loading && items.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-slate-400">Sin productos</p>
-        )}
-        {!loading && items.map((product) => (
-          <button
-            key={product.id}
-            type="button"
-            onClick={() => setSelectedProduct(product)}
-            className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
-          >
-            {product.image ? (
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-10 w-10 flex-shrink-0 rounded-lg object-cover"
-              />
-            ) : (
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-400 dark:bg-slate-700">
-                <ImageOff className="h-4 w-4" />
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
-                {product.name}
-              </p>
-              <div className="flex items-center gap-3 text-xs text-slate-500">
-                <span className="flex items-center gap-1">
-                  <DollarSign className="h-3 w-3" />
-                  {product.price.toFixed(2)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <PackageCheck className="h-3 w-3" />
-                  {product.stock} uds.
-                </span>
-              </div>
-            </div>
-            <span
-              className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                product.isActive
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {product.isActive ? "Activo" : "Inactivo"}
-            </span>
-          </button>
-        ))}
+    <div className="mt-6 rounded-xl border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
+      <div className="flex items-center gap-2 border-b border-white/20 px-6 py-4 dark:border-slate-700/30">
+        <Package className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Productos</h2>
       </div>
 
-      {selectedProduct && (
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        </div>
+      ) : products.length === 0 ? (
+        <div className="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+          Este vendedor no tiene productos.
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/20 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:border-slate-700/30 dark:text-slate-400">
+                  <th className="px-6 py-3">Producto</th>
+                  <th className="px-6 py-3">Precio</th>
+                  <th className="px-6 py-3">Stock</th>
+                  <th className="px-6 py-3">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10 dark:divide-slate-700/20">
+                {products.map((p) => (
+                  <tr
+                    key={p.id}
+                    className="cursor-pointer transition-colors hover:bg-white/20 dark:hover:bg-white/5"
+                    onClick={() => handleRowClick(p)}
+                  >
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-2">
+                        {p.image ? (
+                          <img src={p.image} alt="" className="h-8 w-8 rounded object-cover" />
+                        ) : (
+                          <div className="flex h-8 w-8 items-center justify-center rounded bg-slate-200 text-xs text-slate-500 dark:bg-slate-700">
+                            {p.name.charAt(0)}
+                          </div>
+                        )}
+                        <span className="font-medium text-slate-900 dark:text-slate-100">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3 text-slate-700 dark:text-slate-300">${Number(p.price).toLocaleString("es-AR")}</td>
+                    <td className="px-6 py-3 text-slate-700 dark:text-slate-300">{p.stock}</td>
+                    <td className="px-6 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                          p.isActive
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        }`}
+                      >
+                        {p.isActive ? "Activo" : "Inactivo"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex items-center justify-between border-t border-white/20 px-6 py-3 dark:border-slate-700/30">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Pág. {page} de {pageCount} ({total} prod.)
+            </span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 p-1.5 text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                disabled={page >= pageCount}
+                onClick={() => setPage((p) => p + 1)}
+                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 p-1.5 text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {selected && (
         <ProductEditModal
-          product={selectedProduct}
-          open={!!selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onUpdate={handleUpdate}
-          onDelete={handleDelete}
+          product={selected}
+          isOpen={editOpen}
+          onClose={() => { setEditOpen(false); setSelected(null) }}
+          onSave={() => { load(page) }}
         />
       )}
     </div>

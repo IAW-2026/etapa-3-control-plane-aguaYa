@@ -43,25 +43,42 @@ export class SellerAdapter implements OrderAppAdapter {
   }
 
   private async request(path: string, opts: { method?: string; body?: unknown; params?: Record<string, string> } = {}) {
-    const url = new URL(path, this.baseUrl)
+    let url
+    try {
+      url = new URL(path, this.baseUrl)
+    } catch {
+      throw new Error(`Error interno: URL inválida para ${this.name} (${path})`)
+    }
     if (opts.params) {
       for (const [key, value] of Object.entries(opts.params)) {
         url.searchParams.set(key, value)
       }
     }
-    const res = await fetch(url.toString(), {
-      method: opts.method ?? 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': this.apiKey,
-      },
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-    })
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(`Seller API error ${res.status}: ${text}`)
+    let res
+    try {
+      res = await fetch(url.toString(), {
+        method: opts.method ?? 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': this.apiKey,
+        },
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+      })
+    } catch {
+      throw new Error(`No se puede conectar con la app "${this.name}". Verificá que el servicio esté corriendo en ${this.baseUrl}`)
     }
-    return res.json()
+    const bodyText = await res.text()
+    if (!res.ok) {
+      throw new Error(`Error ${res.status} de ${this.name}: ${bodyText.slice(0, 200)}`)
+    }
+    try {
+      return JSON.parse(bodyText)
+    } catch {
+      if (bodyText.startsWith('<!DOCTYPE') || bodyText.startsWith('<html')) {
+        throw new Error(`No se puede conectar con la app "${this.name}". Verificá que el servicio esté corriendo en ${this.baseUrl}`)
+      }
+      throw new Error(`Respuesta inválida de "${this.name}": ${bodyText.slice(0, 100)}`)
+    }
   }
 
   private map(raw: SellerRawOrder): AppOrder {

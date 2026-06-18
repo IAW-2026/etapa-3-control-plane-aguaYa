@@ -8,29 +8,46 @@ type RequestOptions = {
 }
 
 async function request(path: string, opts: RequestOptions = {}) {
-  const url = new URL(path, SELLER_APP_URL)
+  let url
+  try {
+    url = new URL(path, SELLER_APP_URL)
+  } catch {
+    throw new Error(`Error interno: URL inválida (${path})`)
+  }
   if (opts.params) {
     for (const [key, value] of Object.entries(opts.params)) {
       url.searchParams.set(key, value)
     }
   }
 
-  const response = await fetch(url.toString(), {
-    method: opts.method ?? "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-API-Key": API_KEY,
-    },
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-    next: { revalidate: 0 },
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`API error ${response.status}: ${error}`)
+  let response
+  try {
+    response = await fetch(url.toString(), {
+      method: opts.method ?? "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": API_KEY,
+      },
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      next: { revalidate: 0 },
+    })
+  } catch {
+    throw new Error(`No se puede conectar con la app. Verificá que el servicio esté corriendo en ${SELLER_APP_URL}`)
   }
 
-  return response.json()
+  const bodyText = await response.text()
+  if (!response.ok) {
+    throw new Error(`Error ${response.status} de la app: ${bodyText.slice(0, 200)}`)
+  }
+
+  try {
+    return JSON.parse(bodyText)
+  } catch {
+    if (bodyText.startsWith('<!DOCTYPE') || bodyText.startsWith('<html')) {
+      throw new Error(`No se puede conectar con la app. Verificá que el servicio esté corriendo en ${SELLER_APP_URL}`)
+    }
+    throw new Error(`Respuesta inválida de la app: ${bodyText.slice(0, 100)}`)
+  }
 }
 
 export const sellerApi = {

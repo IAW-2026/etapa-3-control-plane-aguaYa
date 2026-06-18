@@ -1,238 +1,184 @@
-'use client'
+"use client"
 
-import { Suspense, useState, useEffect, useCallback, useRef } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useState, useEffect, useCallback } from "react"
 import { getMergedOrders, getOrderAdapters } from "@/lib/actions/orders"
 import type { AppOrder, StatusDefinition } from "@/lib/adapters/types"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
-import OrderDetailModal from "@/components/orders/OrderDetailModal"
 import OrderStatusBadge from "@/components/orders/OrderStatusBadge"
-import { useToast } from "@/components/ui/ToastProvider"
+import { ShoppingCart, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react"
 
-const ADMIN_PAGE_SIZE = 10
+const PAGE_SIZE = 10
 
-type AppInfo = {
+type AdapterInfo = {
+  key: string
   name: string
-  source: string
   statuses: StatusDefinition[]
 }
 
-type PageData = {
-  items: AppOrder[]
-  total: number
-  pageCount: number
-  errors?: string[]
-}
+export default function OrdersPage() {
+  const [orders, setOrders] = useState<AppOrder[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState("")
+  const [source, setSource] = useState("")
+  const [adapters, setAdapters] = useState<AdapterInfo[]>([])
+  const [loading, setLoading] = useState(true)
 
-function OrdersPageContent() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { showToast } = useToast()
-  const q = searchParams.get("q") ?? ""
-  const source = searchParams.get("source") ?? ""
-  const currentPage = parseInt(searchParams.get("page") ?? "1", 10)
-
-  const [data, setData] = useState<PageData | null>(null)
-  const [apps, setApps] = useState<AppInfo[]>([])
-  const [selectedOrder, setSelectedOrder] = useState<AppOrder | null>(null)
-  const [validTransitions, setValidTransitions] = useState<StatusDefinition[]>([])
-  const bufferRef = useRef<{ items: AppOrder[]; fetchedPage: number } | null>(null)
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   useEffect(() => {
-    getOrderAdapters().then(setApps)
+    getOrderAdapters().then((adapters) => {
+      setAdapters(adapters.map((a: { source: string; name: string; statuses: StatusDefinition[] }) => ({ key: a.source, name: a.name, statuses: a.statuses })))
+    })
   }, [])
 
-  const fetchData = useCallback(async () => {
-    const result = await getMergedOrders({
-      page: currentPage,
-      q: q || undefined,
-      source: source || undefined,
-    })
-    setData(result)
-  }, [currentPage, q, source])
-
-  useEffect(() => { fetchData() }, [fetchData])
+  const load = useCallback(async (p: number, s: string, src: string) => {
+    setLoading(true)
+    try {
+      const res = await getMergedOrders({ page: p, q: s || undefined, source: src || undefined })
+      setOrders(res.items)
+      setTotal(res.total)
+    } catch {
+      setOrders([])
+      setTotal(0)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    if (selectedOrder) {
-      setValidTransitions([])
-    }
-  }, [selectedOrder])
+    load(page, search, source)
+  }, [page, source, load])
 
-  function statusDefs(source: string): StatusDefinition[] {
-    return apps.find((a) => a.source === source)?.statuses ?? []
+  function handleSearch() {
+    setPage(1)
+    load(1, search, source)
   }
 
-  function tabUrl(value: string) {
-    const params = new URLSearchParams()
-    if (value) params.set("source", value)
-    if (q) params.set("q", q)
-    const qs = params.toString()
-    return `/dashboard/orders${qs ? `?${qs}` : ""}`
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter") handleSearch()
   }
 
-  function handlePage(url: string) {
-    bufferRef.current = null
-    router.push(url)
+  function getStatusDefs(sourceKey: string): StatusDefinition[] {
+    return adapters.find((a) => a.key === sourceKey)?.statuses ?? []
   }
-
-  function handleOrderClick(order: AppOrder) {
-    setSelectedOrder(order)
-  }
-
-  function handleStatusChange(orderId: string, newStatus: string) {
-    setData((prev) => prev ? { ...prev, items: prev.items.map((o) => o.id === orderId ? { ...o, status: newStatus } : o) } : prev)
-    setSelectedOrder((prev) => prev?.id === orderId ? { ...prev, status: newStatus } : prev)
-    showToast("success", "Estado actualizado correctamente")
-  }
-
-  const allSources = apps.map((a) => a.source)
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-700 dark:text-sky-400">Gestión</p>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pedidos</h1>
       </div>
 
-      <div className="mb-4 flex items-center gap-2">
-        <a
-          href={tabUrl("")}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            source === ""
-              ? "bg-blue-600 text-white"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
-          }`}
-        >
-          Todas
-        </a>
-        {apps.map((app) => (
-          <a
-            key={app.source}
-            href={tabUrl(app.source)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              source === app.source
-                ? "bg-blue-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
-            }`}
-          >
-            {app.name}
-          </a>
-        ))}
-      </div>
-
-      <div className="mb-6">
-        <form method="GET" action="/dashboard/orders" className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            name="q"
-            defaultValue={q ?? ""}
-            placeholder="Buscar por ID externo, comprador o vendedor..."
-            className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Buscar por comprador..."
+            className="w-full rounded-xl border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100 dark:placeholder-slate-500"
           />
-          {source && <input type="hidden" name="source" value={source} />}
-        </form>
+        </div>
+        {adapters.length > 1 && (
+          <select
+            value={source}
+            onChange={(e) => { setSource(e.target.value); setPage(1) }}
+            className="rounded-xl border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-4 py-2.5 text-sm text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+          >
+            <option value="">Todas las apps</option>
+            {adapters.map((s) => (
+              <option key={s.key} value={s.key}>{s.name}</option>
+            ))}
+          </select>
+        )}
+        <button
+          type="button"
+          onClick={handleSearch}
+          className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
+        >
+          Buscar
+        </button>
       </div>
 
-      {data?.errors && data.errors.length > 0 && (
-        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
-          {data.errors.map((e, i) => (
-            <p key={i}>{e}</p>
-          ))}
-        </div>
-      )}
-
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <div className="overflow-x-auto">
+      <div className="overflow-hidden rounded-xl border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 py-20 text-sm text-slate-500 dark:text-slate-400">
+            <ShoppingCart className="h-8 w-8" />
+            <p>No se encontraron pedidos.</p>
+          </div>
+        ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left dark:border-slate-700">
-                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">ID</th>
-                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Comprador</th>
-                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Vendedor</th>
-                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">App</th>
-                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Total</th>
-                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Estado</th>
-                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Fecha</th>
+              <tr className="border-b border-white/20 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:border-slate-700/30 dark:text-slate-400">
+                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">Comprador</th>
+                <th className="px-6 py-4">Vendedor</th>
+                <th className="px-6 py-4">App</th>
+                <th className="px-6 py-4">Total</th>
+                <th className="px-6 py-4">Estado</th>
+                <th className="px-6 py-4">Fecha</th>
               </tr>
             </thead>
-            <tbody>
-              {(!data || data.items.length === 0) && !data?.errors && (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
-                    No hay pedidos registrados
+            <tbody className="divide-y divide-white/10 dark:divide-slate-700/20">
+              {orders.map((o) => (
+                <tr key={`${o.source}-${o.id}`} className="transition-colors hover:bg-white/20 dark:hover:bg-white/5">
+                  <td className="max-w-[100px] truncate px-6 py-4 font-mono text-xs text-slate-600 dark:text-slate-400">
+                    {o.id.slice(0, 8)}...
                   </td>
-                </tr>
-              )}
-              {data?.items.map((order) => (
-                <tr
-                  key={`${order.source}-${order.id}`}
-                  onClick={() => handleOrderClick(order)}
-                  className="cursor-pointer border-b border-slate-100 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50"
-                >
-                  <td className="px-6 py-4 font-mono text-xs text-slate-500 dark:text-slate-400">
-                    {order.externalId ? `#${order.externalId}` : order.id.slice(0, 8)}
-                  </td>
-                  <td className="px-6 py-4 text-slate-900 dark:text-slate-100">{order.buyerName || "—"}</td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{order.vendorName || "—"}</td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{order.source}</td>
-                  <td className="px-6 py-4 text-slate-900 dark:text-slate-100">${order.total.toFixed(2)}</td>
+                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">{o.buyerName}</td>
+                  <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{o.vendorName ?? "—"}</td>
                   <td className="px-6 py-4">
-                    <OrderStatusBadge status={order.status} definitions={statusDefs(order.source)} />
+                    <span className="inline-flex rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                      {adapters.find(s => s.key === o.source)?.name ?? o.source}
+                    </span>
                   </td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
-                    {new Date(order.createdAt).toLocaleDateString("es-AR")} {new Date(order.createdAt).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })}
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    ${Number(o.total).toLocaleString("es-AR")}
+                  </td>
+                  <td className="px-6 py-4">
+                    <OrderStatusBadge status={o.status} definitions={getStatusDefs(o.source)} />
+                  </td>
+                  <td className="px-6 py-4 text-xs text-slate-500">
+                    {new Date(o.createdAt).toLocaleDateString("es-AR")}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        )}
+
+        {!loading && orders.length > 0 && (
+          <div className="flex items-center justify-between border-t border-white/20 px-6 py-3 dark:border-slate-700/30">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Pág. {page} de {pageCount} ({total} ped.)
+            </span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 p-1.5 text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                disabled={page >= pageCount}
+                onClick={() => setPage((p) => p + 1)}
+                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 p-1.5 text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-
-      {data && data.pageCount > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-2">
-          {currentPage > 1 && (
-            <button
-              onClick={() => handlePage(`/dashboard/orders?page=${currentPage - 1}${q ? `&q=${q}` : ""}${source ? `&source=${source}` : ""}`)}
-              className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Anterior
-            </button>
-          )}
-          <span className="px-3 text-sm text-slate-500 dark:text-slate-400">
-            Página {currentPage} de {data.pageCount}
-          </span>
-          {currentPage < data.pageCount && (
-            <button
-              onClick={() => handlePage(`/dashboard/orders?page=${currentPage + 1}${q ? `&q=${q}` : ""}${source ? `&source=${source}` : ""}`)}
-              className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
-            >
-              Siguiente
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-      )}
-
-      {selectedOrder && (
-        <OrderDetailModal
-          order={selectedOrder}
-          open={!!selectedOrder}
-          onClose={() => setSelectedOrder(null)}
-          onStatusChange={handleStatusChange}
-          statuses={statusDefs(selectedOrder.source)}
-          validTransitions={validTransitions}
-        />
-      )}
     </div>
-  )
-}
-
-export default function OrdersPage() {
-  return (
-    <Suspense fallback={null}>
-      <OrdersPageContent />
-    </Suspense>
   )
 }

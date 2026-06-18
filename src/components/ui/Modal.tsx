@@ -40,7 +40,7 @@ export default function Modal({ isOpen, onClose, title, children }: Props) {
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-50 w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-800"
+        className="relative z-50 w-full max-w-lg rounded-xl border border-white/30 bg-gradient-to-br from-white/50 to-slate-100/50 p-6 shadow-xl shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/70 dark:to-slate-800/70"
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">

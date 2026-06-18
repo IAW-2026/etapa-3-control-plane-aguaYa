@@ -21,8 +21,9 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
   if (!vendor && !error) return notFound()
   if (!vendor) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        {error}
+      <div className="m-8 rounded-xl border border-red-200/60 bg-white/80 p-6 text-sm text-red-700 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-red-800/60 dark:bg-slate-900/80 dark:text-red-400">
+        <p className="font-medium">Error al cargar el vendedor</p>
+        <p className="mt-1">{error}</p>
       </div>
     )
   }
