@@ -145,3 +145,24 @@ export type ToggleResponse = {
   ok: boolean
   nuevoEstado: string
 }
+
+/* Logistics Admin */
+export type LogisticsAdmin = {
+  clerkUserId: string
+  nombre: string
+  telefono?: string
+  idVendedor: string
+  nombreEmpresa: string
+  isBlocked: boolean
+  createdAt: string
+}
+
+export type CreateLogisticsAdminData = {
+  email: string
+  idVendedor: string
+}
+
+export type UpdateLogisticsAdminData = {
+  nombre?: string
+  nombreEmpresa?: string
+}

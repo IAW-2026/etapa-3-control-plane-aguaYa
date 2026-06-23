@@ -1,8 +1,9 @@
 'use server'
 
 import { deliveryApi } from '@/lib/api-delivery'
-import type { Driver, Vehicle, Zone, ListResponse, CreateDriverData, UpdateDriverData, CreateVehicleData, UpdateVehicleData, CreateZoneData, UpdateZoneData, ToggleResponse } from '@/lib/types'
+import type { Driver, Vehicle, Zone, LogisticsAdmin, ListResponse, CreateDriverData, UpdateDriverData, CreateVehicleData, UpdateVehicleData, CreateZoneData, UpdateZoneData, CreateLogisticsAdminData, UpdateLogisticsAdminData, ToggleResponse } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
+import { clerkClient } from '@clerk/nextjs/server'
 
 /* ───── Drivers ───── */
 
@@ -116,4 +117,51 @@ export async function getLogisticsAdminsSimple() {
     id: item.idVendedor,
     name: item.nombreEmpresa,
   }))
+}
+
+/* ───── CRUD Logistics Admins ───── */
+
+export async function getLogisticsAdmins(params?: Record<string, string>) {
+  return deliveryApi.get('/api/admin/logistics-admins', params) as Promise<ListResponse<LogisticsAdmin>>
+}
+
+export async function getLogisticsAdmin(clerkUserId: string) {
+  return deliveryApi.get(`/api/admin/logistics-admins/${clerkUserId}`) as Promise<LogisticsAdmin>
+}
+
+export async function createLogisticsAdmin(data: CreateLogisticsAdminData) {
+  const { email, idVendedor } = data
+
+  const client = await clerkClient()
+  const { data: users } = await client.users.getUserList({ emailAddress: [email] })
+
+  if (users.length === 0) {
+    throw new Error("No se encontró ningún usuario con ese email en Clerk")
+  }
+
+  const clerkUserId = users[0].id
+
+  const res = await deliveryApi.post('/api/admin/logistics-admins', { clerkUserId, idVendedor }) as LogisticsAdmin
+  revalidatePath('/dashboard/logistics-admins')
+  return res
+}
+
+export async function updateLogisticsAdmin(clerkUserId: string, data: UpdateLogisticsAdminData) {
+  const res = await deliveryApi.put(`/api/admin/logistics-admins/${clerkUserId}`, data) as LogisticsAdmin
+  revalidatePath('/dashboard/logistics-admins')
+  revalidatePath(`/dashboard/logistics-admins/${clerkUserId}`)
+  return res
+}
+
+export async function toggleLogisticsAdmin(clerkUserId: string) {
+  const res = await deliveryApi.patch(`/api/admin/logistics-admins/${clerkUserId}/toggle`, {}) as ToggleResponse
+  revalidatePath('/dashboard/logistics-admins')
+  revalidatePath(`/dashboard/logistics-admins/${clerkUserId}`)
+  return res
+}
+
+export async function deleteLogisticsAdmin(clerkUserId: string) {
+  const res = await deliveryApi.delete(`/api/admin/logistics-admins/${clerkUserId}`)
+  revalidatePath('/dashboard/logistics-admins')
+  return res
 }

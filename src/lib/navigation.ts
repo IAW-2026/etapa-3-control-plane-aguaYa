@@ -6,6 +6,7 @@ import {
   Truck,
   Car,
   MapPin,
+  Shield,
   type LucideIcon,
 } from "lucide-react"
 
@@ -26,6 +27,7 @@ export const deliveryNav: NavItem[] = [
   { label: "Choferes", href: "/dashboard/drivers", icon: Truck },
   { label: "Vehículos", href: "/dashboard/vehicles", icon: Car },
   { label: "Zonas", href: "/dashboard/zones", icon: MapPin },
+  { label: "Logísticos", href: "/dashboard/logistics-admins", icon: Shield },
 ]
 
 export type NavSection = {

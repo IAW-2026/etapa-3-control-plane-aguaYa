@@ -6,10 +6,10 @@ import ConfirmDialog from "./ConfirmDialog"
 import { Trash2 } from "lucide-react"
 
 type Props = {
-  id: number
+  id: string | number
   label: string
   message: string
-  deleteAction: (id: number) => Promise<void>
+  deleteAction: (id: any) => Promise<void>
 }
 
 export default function DeleteButton({ id, label, message, deleteAction }: Props) {
