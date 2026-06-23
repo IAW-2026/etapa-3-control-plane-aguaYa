@@ -1,7 +1,9 @@
-import { getVehicles } from "@/lib/actions/delivery"
+import { getVehicles, getLogisticsAdminsSimple, deleteVehicle } from "@/lib/actions/delivery"
 import type { Vehicle, ListResponse } from "@/lib/types"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import CreateVehicleWrapper from "./CreateVehicleWrapper"
+import DeleteButton from "@/components/ui/DeleteButton"
 
 export const dynamic = "force-dynamic"
 
@@ -16,14 +18,20 @@ export default async function VehiclesPage({
 
   let data: ListResponse<Vehicle> | null = null
   let error: string | null = null
+  let vendorMap = new Map<string, string>()
 
   try {
-    data = await getVehicles({
-      page: String(currentPage),
-      limit: "10",
-      ...(q ? { q } : {}),
-      ...(estado ? { estado } : {}),
-    })
+    const [vehicles, admins] = await Promise.all([
+      getVehicles({
+        page: String(currentPage),
+        limit: "10",
+        ...(q ? { q } : {}),
+        ...(estado ? { estado } : {}),
+      }),
+      getLogisticsAdminsSimple(),
+    ])
+    data = vehicles
+    vendorMap = new Map(admins.map((a) => [a.id, a.name]))
   } catch (e) {
     error = e instanceof Error ? e.message : "Error al cargar vehículos"
   }
@@ -40,6 +48,7 @@ export default async function VehiclesPage({
     <div>
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Vehículos</h1>
+        <CreateVehicleWrapper />
       </div>
 
       {error && (
@@ -103,35 +112,56 @@ export default async function VehiclesPage({
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Tipo</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Capacidad</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Estado</th>
+                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Empresa</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Chofer</th>
+                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {(!data || data.items.length === 0) && !error && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
                     No hay vehículos registrados
                   </td>
                 </tr>
               )}
               {data?.items.map((vehicle) => (
                 <tr key={vehicle.idVehiculo} className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50">
-                  <td className="px-6 py-4 font-mono text-sm font-medium text-slate-900 dark:text-slate-100">
-                    {vehicle.patente}
+                  <td className="px-6 py-4 font-mono text-sm font-medium">
+                    <Link href={`/dashboard/vehicles/${vehicle.idVehiculo}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                      {vehicle.patente}
+                    </Link>
                   </td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{vehicle.tipo}</td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{vehicle.capacidadBidones} bidones</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      vehicle.estado === "activo"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-amber-100 text-amber-700"
-                    }`}>
-                      {vehicle.estado}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{vehicle.choferAsignado || "—"}</td>
-                </tr>
+                       vehicle.estado === "activo"
+                         ? "bg-emerald-100 text-emerald-700"
+                         : "bg-amber-100 text-amber-700"
+                     }`}>
+                       {vehicle.estado}
+                     </span>
+                   </td>
+                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                     {vendorMap.get(vehicle.idVendedor) || vehicle.idVendedor}
+                   </td>
+                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                     {typeof vehicle.choferAsignado === "object" && vehicle.choferAsignado
+                       ? vehicle.choferAsignado.nombre
+                       : typeof vehicle.choferAsignado === "string"
+                       ? vehicle.choferAsignado
+                       : "—"}
+                   </td>
+                   <td className="px-6 py-4">
+                     <DeleteButton
+                       id={vehicle.idVehiculo}
+                       label={vehicle.patente}
+                       message={`¿Estás seguro de eliminar el vehículo "${vehicle.patente}"? Se desasignarán los choferes asociados. Esta acción no se puede deshacer.`}
+                       deleteAction={deleteVehicle}
+                     />
+                   </td>
+                 </tr>
               ))}
             </tbody>
           </table>

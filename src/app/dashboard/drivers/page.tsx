@@ -1,7 +1,9 @@
-import { getDrivers } from "@/lib/actions/delivery"
+import { getDrivers, deleteDriver } from "@/lib/actions/delivery"
 import type { Driver, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import Link from "next/link"
+import CreateDriverWrapper from "./CreateDriverWrapper"
+import DeleteButton from "@/components/ui/DeleteButton"
 
 export const dynamic = "force-dynamic"
 
@@ -40,6 +42,7 @@ export default async function DriversPage({
     <div>
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Choferes</h1>
+        <CreateDriverWrapper />
       </div>
 
       {error && (
@@ -106,12 +109,13 @@ export default async function DriversPage({
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Zona</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Vehículo</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Pedidos</th>
+                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {(!data || data.items.length === 0) && !error && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
                     No hay choferes registrados
                   </td>
                 </tr>
@@ -141,6 +145,14 @@ export default async function DriversPage({
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.zona?.nombre || "—"}</td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.vehiculo?.patente || "—"}</td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.pedidosAsignados}</td>
+                  <td className="px-6 py-4">
+                    <DeleteButton
+                      id={driver.idChofer}
+                      label={driver.nombre}
+                      message={`¿Estás seguro de eliminar a "${driver.nombre}"? Esta acción no se puede deshacer.`}
+                      deleteAction={deleteDriver}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
