@@ -1,7 +1,7 @@
 import { getZone } from "@/lib/actions/delivery"
 import type { Zone } from "@/lib/types"
 import { notFound } from "next/navigation"
-import ZoneDetailClient from "./ZoneDetailClient"
+import ZoneDetailClient from "@/components/delivery/ZoneDetailClient"
 
 export const dynamic = "force-dynamic"
 

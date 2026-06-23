@@ -2,7 +2,7 @@ import { getVehicles, getLogisticsAdminsSimple, deleteVehicle } from "@/lib/acti
 import type { Vehicle, ListResponse } from "@/lib/types"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
-import CreateVehicleWrapper from "./CreateVehicleWrapper"
+import CreateVehicleWrapper from "@/components/delivery/CreateVehicleWrapper"
 import DeleteButton from "@/components/ui/DeleteButton"
 
 export const dynamic = "force-dynamic"

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Plus } from "lucide-react"
-import CreateZoneModal from "./CreateZoneModal"
+import CreateZoneModal from "@/components/delivery/CreateZoneModal"
 
 export default function CreateZoneWrapper() {
   const [open, setOpen] = useState(false)

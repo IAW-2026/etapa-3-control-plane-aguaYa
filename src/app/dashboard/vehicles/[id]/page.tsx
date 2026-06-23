@@ -1,7 +1,7 @@
 import { getVehicle } from "@/lib/actions/delivery"
 import type { Vehicle } from "@/lib/types"
 import { notFound } from "next/navigation"
-import VehicleDetailClient from "./VehicleDetailClient"
+import VehicleDetailClient from "@/components/delivery/VehicleDetailClient"
 
 export const dynamic = "force-dynamic"
 

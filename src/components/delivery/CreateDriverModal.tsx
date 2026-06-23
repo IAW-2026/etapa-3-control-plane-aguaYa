@@ -60,22 +60,26 @@ export default function CreateDriverModal({ isOpen, onClose, onSuccess }: Props)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!email || !nombre || !idVendedor) return
+    if (!email || !nombre) return
     setSaving(true)
     try {
       const res = await createDriver({
         email,
         nombre,
         telefono: telefono || undefined,
-        idVendedor,
+        idVendedor: idVendedor || undefined,
         idZona: idZona ? Number(idZona) : undefined,
         idVehiculo: idVehiculo ? Number(idVehiculo) : undefined,
       })
       setCreatedPassword(res.temporaryPassword ?? null)
       showToast("success", "Chofer creado correctamente")
-      onSuccess()
-    } catch {
-      showToast("error", "Error al crear chofer")
+    } catch (e) {
+      const msg = e instanceof Error ? e.message.toLowerCase() : ""
+      if (msg.includes("email") || msg.includes("clerk") || msg.includes("ya existe")) {
+        showToast("error", "El email ya está registrado")
+      } else {
+        showToast("error", "Error al crear chofer")
+      }
       setSaving(false)
     }
   }
@@ -88,9 +92,14 @@ export default function CreateDriverModal({ isOpen, onClose, onSuccess }: Props)
     }
   }
 
+  function handleCloseSuccess() {
+    onClose()
+    onSuccess()
+  }
+
   if (createdPassword) {
     return (
-      <Modal isOpen={isOpen} onClose={onClose} title="Chofer creado exitosamente">
+      <Modal isOpen={isOpen} onClose={handleCloseSuccess} title="Chofer creado exitosamente">
         <div className="space-y-4 text-sm">
           <p className="text-slate-600 dark:text-slate-300">
             El chofer <strong>{nombre}</strong> fue creado. Usá esta contraseña temporal para que inicie sesión por primera vez.
@@ -122,7 +131,7 @@ export default function CreateDriverModal({ isOpen, onClose, onSuccess }: Props)
           <div className="flex justify-end">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleCloseSuccess}
               className="rounded-lg bg-blue-600 px-5 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
             >
               Cerrar
@@ -181,12 +190,11 @@ export default function CreateDriverModal({ isOpen, onClose, onSuccess }: Props)
             <select
               value={idZona}
               onChange={(e) => setIdZona(e.target.value)}
-              disabled={!idVendedor}
-              className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+              className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
             >
               <option value="">Sin zona</option>
               {zones
-                .filter((z) => z.empresas.includes(idVendedor))
+                .filter((z) => !idVendedor || z.empresas.includes(idVendedor))
                 .map((z) => (
                   <option key={z.idZona} value={z.idZona}>{z.nombre}</option>
                 ))}
@@ -195,7 +203,7 @@ export default function CreateDriverModal({ isOpen, onClose, onSuccess }: Props)
 
           <div className="col-span-2">
             <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
-              Empresa <span className="text-red-500">*</span>
+              Empresa
             </label>
             <select
               value={idVendedor}
@@ -204,7 +212,6 @@ export default function CreateDriverModal({ isOpen, onClose, onSuccess }: Props)
                 setIdZona("")
                 setIdVehiculo("")
               }}
-              required
               className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
             >
               <option value="">Seleccionar empresa</option>
@@ -219,12 +226,11 @@ export default function CreateDriverModal({ isOpen, onClose, onSuccess }: Props)
             <select
               value={idVehiculo}
               onChange={(e) => setIdVehiculo(e.target.value)}
-              disabled={!idVendedor}
-              className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+              className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
             >
               <option value="">Sin vehículo</option>
               {vehicles
-                .filter((v) => v.estado === "activo" && v.idVendedor === idVendedor)
+                .filter((v) => v.estado === "activo" && (!idVendedor || v.idVendedor === idVendedor))
                 .map((v) => (
                   <option key={v.idVehiculo} value={v.idVehiculo}>
                     {v.patente} — {v.tipo}

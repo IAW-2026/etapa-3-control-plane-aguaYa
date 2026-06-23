@@ -2,7 +2,7 @@ import { getDrivers, deleteDriver } from "@/lib/actions/delivery"
 import type { Driver, ListResponse } from "@/lib/types"
 import { Search, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import Link from "next/link"
-import CreateDriverWrapper from "./CreateDriverWrapper"
+import CreateDriverWrapper from "@/components/delivery/CreateDriverWrapper"
 import DeleteButton from "@/components/ui/DeleteButton"
 
 export const dynamic = "force-dynamic"

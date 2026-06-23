@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { Plus } from "lucide-react"
-import CreateDriverModal from "./CreateDriverModal"
+import CreateVehicleModal from "@/components/delivery/CreateVehicleModal"
 
-export default function CreateDriverWrapper() {
+export default function CreateVehicleWrapper() {
   const [open, setOpen] = useState(false)
 
   return (
@@ -15,9 +15,9 @@ export default function CreateDriverWrapper() {
         className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
       >
         <Plus className="h-4 w-4" />
-        Nuevo Chofer
+        Nuevo Vehículo
       </button>
-      <CreateDriverModal
+      <CreateVehicleModal
         isOpen={open}
         onClose={() => setOpen(false)}
         onSuccess={() => setOpen(false)}

@@ -104,7 +104,7 @@ export type CreateDriverData = {
   email: string
   nombre: string
   telefono?: string
-  idVendedor: string
+  idVendedor?: string
   idZona?: number
   idVehiculo?: number
 }
