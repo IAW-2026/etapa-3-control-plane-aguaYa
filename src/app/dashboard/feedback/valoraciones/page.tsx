@@ -53,7 +53,7 @@ export default async function FeedbackValoracionesPage({
         </div>
       )}
 
-      <div className="mb-4 flex gap-1 rounded-xl bg-gradient-to-br from-slate-100/70 to-slate-200/50 p-1 shadow-lg shadow-black/5 backdrop-blur-xl dark:from-slate-800/60 dark:to-slate-800/40">
+      <div className="mb-4 flex gap-1 rounded-xl bg-linear-to-br from-slate-100/70 to-slate-200/50 p-1 shadow-lg shadow-black/5 backdrop-blur-xl dark:from-slate-800/60 dark:to-slate-800/40">
         {[undefined, 5, 4, 3, 2, 1].map((s) => {
           const label = s === undefined ? 'Todas' : `${s} ★`
           const isActive = (s === undefined && !estrellas) || s === estrellas
@@ -66,7 +66,7 @@ export default async function FeedbackValoracionesPage({
               href={href}
               className={`flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-gradient-to-br from-white/60 to-slate-100/60 text-slate-900 shadow-sm backdrop-blur-sm dark:from-slate-700 dark:to-slate-600 dark:text-white'
+                  ? 'bg-linear-to-br from-white/60 to-slate-100/60 text-slate-900 shadow-sm backdrop-blur-sm dark:from-slate-700 dark:to-slate-600 dark:text-white'
                   : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
             >
@@ -76,7 +76,7 @@ export default async function FeedbackValoracionesPage({
         })}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
+      <div className="overflow-x-auto rounded-xl border border-white/30 bg-linear-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/20 text-left dark:border-slate-700/30">
@@ -117,7 +117,7 @@ export default async function FeedbackValoracionesPage({
           {currentPage > 1 && (
             <a
               href={pageUrl(currentPage - 1)}
-              className="flex items-center gap-1 rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400 dark:hover:bg-white/10"
+              className="flex items-center gap-1 rounded-lg border border-white/30 bg-linear-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400 dark:hover:bg-white/10"
             >
               <ChevronLeft className="h-4 w-4" />
               Anterior
@@ -129,7 +129,7 @@ export default async function FeedbackValoracionesPage({
           {currentPage < data.totalPages && (
             <a
               href={pageUrl(currentPage + 1)}
-              className="flex items-center gap-1 rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400 dark:hover:bg-white/10"
+              className="flex items-center gap-1 rounded-lg border border-white/30 bg-linear-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400 dark:hover:bg-white/10"
             >
               Siguiente
               <ChevronRight className="h-4 w-4" />
