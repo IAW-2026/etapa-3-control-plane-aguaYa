@@ -1,6 +1,7 @@
 import { getValoraciones, type ValoracionItem } from '@/lib/actions/feedback'
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import DeleteFeedbackButton from '@/components/feedback/DeleteFeedbackButton'
+import ValoracionCard from '@/components/feedback/ValoracionCard'
 
 export const dynamic = "force-dynamic"
 
@@ -76,7 +77,18 @@ export default async function FeedbackValoracionesPage({
         })}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-white/30 bg-linear-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
+      {/* Cards — mobile */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {(!data || data.items.length === 0) && !error && (
+          <p className="py-12 text-center text-sm text-slate-400">No hay valoraciones registradas</p>
+        )}
+        {data?.items.map((valoracion) => (
+          <ValoracionCard key={valoracion.id_valoracion} valoracion={valoracion} />
+        ))}
+      </div>
+
+      {/* Table — desktop */}
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-white/30 bg-linear-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-white/20 text-left dark:border-slate-700/30">
