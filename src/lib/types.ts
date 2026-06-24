@@ -186,3 +186,25 @@ export type UpdateAdminDeliveryData = {
   nombre?: string
   telefono?: string
 }
+
+/* Admin Seller (gestionado directo por Clerk desde Control Plane) */
+export type SellerAdmin = {
+  clerkUserId: string
+  email: string
+  nombre: string | null
+  telefono: string | null
+  isBlocked: boolean
+  createdAt: string
+}
+
+export type CreateSellerAdminData = {
+  email: string
+  password: string
+  nombre: string
+  telefono?: string
+}
+
+export type UpdateSellerAdminData = {
+  nombre?: string
+  telefono?: string
+}

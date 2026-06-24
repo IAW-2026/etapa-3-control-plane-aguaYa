@@ -73,6 +73,10 @@ export async function deleteProduct(id: string) {
   return res
 }
 
+export async function getVendors(params?: Record<string, string>) {
+  return sellerApi.get('/api/admin/vendors', params)
+}
+
 export async function getVendorsSimple() {
   const res = await sellerApi.get('/api/admin/vendors') as { items: Array<{ id: string; name: string; clerkEmail: string }> }
   return res.items.map((v) => ({ id: v.id, name: v.name, clerkEmail: v.clerkEmail }))
