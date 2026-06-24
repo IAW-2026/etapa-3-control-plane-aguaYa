@@ -6,6 +6,8 @@ import {
   Truck,
   Car,
   MapPin,
+  MessageSquareQuote,
+  Star,
   type LucideIcon,
 } from "lucide-react"
 
@@ -28,6 +30,11 @@ export const deliveryNav: NavItem[] = [
   { label: "Zonas", href: "/dashboard/zones", icon: MapPin },
 ]
 
+export const feedbackNav: NavItem[] = [
+  { label: "Reseñas", href: "/dashboard/feedback/resenas", icon: MessageSquareQuote },
+  { label: "Valoraciones", href: "/dashboard/feedback/valoraciones", icon: Star },
+]
+
 export type NavSection = {
   title: string
   items: NavItem[]
@@ -36,4 +43,5 @@ export type NavSection = {
 export const navSections: NavSection[] = [
   { title: "Seller App", items: mainNav.slice(1) },
   { title: "Delivery App", items: deliveryNav },
+  { title: "Feedback App", items: feedbackNav },
 ]
