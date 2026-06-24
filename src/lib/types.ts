@@ -1,95 +1,112 @@
 export type Vendor = {
-  id: string
-  name: string
-  description?: string
-  address: string
-  image?: string
-  cuil?: string
-  cuit?: string
-  isActive: boolean
-  createdAt: string
-  clerkName: string
-  clerkEmail: string
-  _count: { products: number; orders: number }
-}
+  id: string;
+  name: string;
+  description?: string;
+  address: string;
+  image?: string;
+  cuil?: string;
+  cuit?: string;
+  isActive: boolean;
+  createdAt: string;
+  clerkName: string;
+  clerkEmail: string;
+  _count: { products: number; orders: number };
+};
 
 export type ListResponse<T> = {
-  items: T[]
-  total: number
-  pageCount: number
-}
+  items: T[];
+  total: number;
+  pageCount: number;
+};
 
 export type VendorDetailResponse = {
-  success: boolean
-  vendor: Vendor
-}
+  success: boolean;
+  vendor: Vendor;
+};
 
 export type ProductItem = {
-  id: string
-  name: string
-  description?: string
-  price: number
-  stock: number
-  image?: string
-  isActive: boolean
-  createdAt: string
-  vendor?: { name: string; id: string }
-}
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  stock: number;
+  image?: string;
+  isActive: boolean;
+  createdAt: string;
+  vendor?: { name: string; id: string };
+};
 
 export type OrderItemProduct = {
-  id: string
-  name: string
-  price: number
-  image?: string
-}
+  id: string;
+  name: string;
+  price: number;
+  image?: string;
+};
 
 export type OrderLineItem = {
-  id: string
-  productName: string
-  productPrice: number
-  quantity: number
-  product: OrderItemProduct
-}
+  id: string;
+  productName: string;
+  productPrice: number;
+  quantity: number;
+  product: OrderItemProduct;
+};
 
 export type OrderItem = {
-  id: string
-  externalId: string
-  buyerName: string
-  status: string
-  total: number
-  address?: string
-  createdAt: string
-  items: OrderLineItem[]
-  vendor?: { name: string; id: string }
-}
+  id: string;
+  externalId: string;
+  buyerName: string;
+  status: string;
+  total: number;
+  address?: string;
+  createdAt: string;
+  items: OrderLineItem[];
+  vendor?: { name: string; id: string };
+};
 
 /* Delivery App types */
 export type Driver = {
-  idChofer: number
-  nombre: string
-  telefono?: string
-  estado: string
-  disponible: boolean
-  zona?: { idZona: number; nombre: string }
-  vehiculo?: { idVehiculo: number; patente: string; tipo: string }
-  pedidosAsignados: number
-  idVendedor: string
-  nombreEmpresa?: string
-}
+  idChofer: number;
+  nombre: string;
+  telefono?: string;
+  estado: string;
+  disponible: boolean;
+  zona?: { idZona: number; nombre: string };
+  vehiculo?: { idVehiculo: number; patente: string; tipo: string };
+  pedidosAsignados: number;
+  idVendedor: string;
+  nombreEmpresa?: string;
+};
 
 export type Vehicle = {
-  idVehiculo: number
-  patente: string
-  tipo: string
-  capacidadBidones: number
-  estado: string
-  idVendedor: string
-  choferAsignado?: string
-}
+  idVehiculo: number;
+  patente: string;
+  tipo: string;
+  capacidadBidones: number;
+  estado: string;
+  idVendedor: string;
+  choferAsignado?: string;
+};
 
 export type Zone = {
-  idZona: number
-  nombre: string
-  choferes: number
-  empresas: string[]
-}
+  idZona: number;
+  nombre: string;
+  choferes: number;
+  empresas: string[];
+};
+
+/* Payment App types */
+export type Payment = {
+  id: string;
+  amount: number;
+  status: PaymentStatus;
+  createdAt: string;
+};
+export type PaymentUser = {
+  id: string;
+  buyerId?: string; //si tiene rol buyer
+  buyerName?: string; //si tiene rol buyer
+  sellerId?: string; //si tiene rol seller
+  sellerName?: string; //si tiene rol seller
+  isActive: boolean;
+};
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
