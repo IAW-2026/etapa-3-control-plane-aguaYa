@@ -1,7 +1,7 @@
 import { getDriver } from "@/lib/actions/delivery"
 import type { Driver } from "@/lib/types"
 import { notFound } from "next/navigation"
-import DriverDetailClient from "./DriverDetailClient"
+import DriverDetailClient from "@/components/delivery/DriverDetailClient"
 
 export const dynamic = "force-dynamic"
 
