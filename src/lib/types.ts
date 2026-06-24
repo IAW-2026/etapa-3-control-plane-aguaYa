@@ -166,3 +166,23 @@ export type UpdateLogisticsAdminData = {
   nombre?: string
   nombreEmpresa?: string
 }
+
+/* Admin Delivery (global, sin empresa) */
+export type AdminDelivery = {
+  clerkUserId: string
+  nombre: string | null
+  telefono?: string | null
+  isBlocked: boolean
+  createdAt: string
+}
+
+export type CreateAdminDeliveryData = {
+  email: string
+  nombre: string
+  telefono?: string
+}
+
+export type UpdateAdminDeliveryData = {
+  nombre?: string
+  telefono?: string
+}

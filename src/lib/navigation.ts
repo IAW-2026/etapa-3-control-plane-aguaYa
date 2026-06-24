@@ -28,6 +28,7 @@ export const deliveryNav: NavItem[] = [
   { label: "Vehículos", href: "/dashboard/vehicles", icon: Car },
   { label: "Zonas", href: "/dashboard/zones", icon: MapPin },
   { label: "Logísticos", href: "/dashboard/logistics-admins", icon: Shield },
+  { label: "Admin Delivery", href: "/dashboard/delivery-admins", icon: Shield },
 ]
 
 export type NavSection = {

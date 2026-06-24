@@ -1,7 +1,7 @@
 'use server'
 
 import { deliveryApi } from '@/lib/api-delivery'
-import type { Driver, Vehicle, Zone, LogisticsAdmin, ListResponse, CreateDriverData, UpdateDriverData, CreateVehicleData, UpdateVehicleData, CreateZoneData, UpdateZoneData, CreateLogisticsAdminData, UpdateLogisticsAdminData, ToggleResponse } from '@/lib/types'
+import type { Driver, Vehicle, Zone, LogisticsAdmin, AdminDelivery, ListResponse, CreateDriverData, UpdateDriverData, CreateVehicleData, UpdateVehicleData, CreateZoneData, UpdateZoneData, CreateLogisticsAdminData, UpdateLogisticsAdminData, CreateAdminDeliveryData, UpdateAdminDeliveryData, ToggleResponse } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 import { clerkClient } from '@clerk/nextjs/server'
 
@@ -163,5 +163,41 @@ export async function toggleLogisticsAdmin(clerkUserId: string) {
 export async function deleteLogisticsAdmin(clerkUserId: string) {
   const res = await deliveryApi.delete(`/api/admin/logistics-admins/${clerkUserId}`)
   revalidatePath('/dashboard/logistics-admins')
+  return res
+}
+
+/* ───── Admin Delivery (global) ───── */
+
+export async function getDeliveryAdmins(params?: Record<string, string>) {
+  return deliveryApi.get('/api/admin/delivery-admins', params) as Promise<ListResponse<AdminDelivery>>
+}
+
+export async function getDeliveryAdmin(clerkUserId: string) {
+  return deliveryApi.get(`/api/admin/delivery-admins/${clerkUserId}`) as Promise<AdminDelivery>
+}
+
+export async function createDeliveryAdmin(data: CreateAdminDeliveryData) {
+  const res = await deliveryApi.post('/api/admin/delivery-admins', data) as AdminDelivery & { temporaryPassword?: string }
+  revalidatePath('/dashboard/delivery-admins')
+  return res
+}
+
+export async function updateDeliveryAdmin(clerkUserId: string, data: UpdateAdminDeliveryData) {
+  const res = await deliveryApi.put(`/api/admin/delivery-admins/${clerkUserId}`, data) as AdminDelivery
+  revalidatePath('/dashboard/delivery-admins')
+  revalidatePath(`/dashboard/delivery-admins/${clerkUserId}`)
+  return res
+}
+
+export async function toggleDeliveryAdmin(clerkUserId: string) {
+  const res = await deliveryApi.patch(`/api/admin/delivery-admins/${clerkUserId}/toggle`, {}) as ToggleResponse
+  revalidatePath('/dashboard/delivery-admins')
+  revalidatePath(`/dashboard/delivery-admins/${clerkUserId}`)
+  return res
+}
+
+export async function deleteDeliveryAdmin(clerkUserId: string) {
+  const res = await deliveryApi.delete(`/api/admin/delivery-admins/${clerkUserId}`)
+  revalidatePath('/dashboard/delivery-admins')
   return res
 }
