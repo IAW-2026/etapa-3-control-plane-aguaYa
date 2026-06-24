@@ -104,7 +104,7 @@ export default async function FeedbackValoracionesPage({
                   {new Date(valoracion.fecha).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4">
-                  <DeleteFeedbackButton id={valoracion.id_valoracion} type="valoracion" />
+                  <DeleteFeedbackButton id={valoracion.id_valoracion} type="valoracion" label="Valoración" />
                 </td>
               </tr>
             ))}

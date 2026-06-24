@@ -110,7 +110,7 @@ export default async function FeedbackResenasPage({
                   {new Date(resena.fecha).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4">
-                  <DeleteFeedbackButton id={resena.id_resena} type="resena" />
+                  <DeleteFeedbackButton id={resena.id_resena} type="resena" label="Reseña" />
                 </td>
               </tr>
             ))}
