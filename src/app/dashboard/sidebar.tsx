@@ -44,7 +44,6 @@ export default function Sidebar() {
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         <p className="px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">General</p>
         <NavLink item={mainNav[0]} isActive={pathname === mainNav[0].href} />
-        <NavLink item={mainNav[3]} isActive={pathname === mainNav[3].href} />
 
         {navSections.map((section) => (
           <div key={section.title}>
