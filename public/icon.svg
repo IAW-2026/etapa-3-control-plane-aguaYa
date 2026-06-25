@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Gota de agua: path recalculado para que quepa en 32x32 -->
+  <path d="M16 2 C16 2 30 14 30 22 C30 29 23.7 32 16 32 C8.3 32 2 29 2 22 C2 14 16 2 16 2 Z" fill="#2563eb"/>
+  <!-- Engranaje descentrado -->
+  <circle cx="16" cy="24" r="7" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="2.75 2.75" stroke-linecap="round"/>
+  <circle cx="16" cy="24" r="5" fill="none" stroke="#fff" stroke-width="1.5"/>
+  <circle cx="16" cy="24" r="1.8" fill="#fff"/>
+</svg>

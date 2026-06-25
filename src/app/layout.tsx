@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Control Plane — AguaYa",
   description: "Panel de administración global del sistema AguaYa",
+  icons: { icon: "/icon.svg" },
 };
 
 export default function RootLayout({

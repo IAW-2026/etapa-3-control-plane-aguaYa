@@ -33,9 +33,7 @@ export default function Sidebar() {
     <aside className="flex h-full w-64 flex-col border-r border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
       <div className="flex h-16 items-center justify-between border-b border-white/20 px-6 dark:border-slate-700/30">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
-            CP
-          </div>
+          <img src="/icon.svg" alt="AguaYa" className="h-8 w-8" />
           <span className="text-lg font-semibold text-slate-900 dark:text-slate-100">Control Plane</span>
         </div>
         <ThemeToggle />
