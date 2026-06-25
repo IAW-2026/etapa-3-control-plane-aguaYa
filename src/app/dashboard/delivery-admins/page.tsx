@@ -1,6 +1,6 @@
 import { getDeliveryAdmins, deleteDeliveryAdmin } from "@/lib/actions/delivery"
 import type { AdminDelivery, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Pencil } from "lucide-react"
 import Link from "next/link"
 import DeleteButton from "@/components/ui/DeleteButton"
 import CreateDeliveryAdminWrapper from "@/components/delivery/CreateDeliveryAdminWrapper"
@@ -134,12 +134,21 @@ export default async function DeliveryAdminsPage({
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <DeleteButton
-                      id={admin.clerkUserId}
-                      label={admin.nombre ?? ""}
-                      message={`¿Estás seguro de eliminar a "${admin.nombre}"? Se le quitarán los permisos de administrador de delivery.`}
-                      deleteAction={deleteDeliveryAdmin}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/dashboard/delivery-admins/${admin.clerkUserId}`}
+                        className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        title={`Editar ${admin.nombre ?? ""}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      <DeleteButton
+                        id={admin.clerkUserId}
+                        label={admin.nombre ?? ""}
+                        message={`¿Estás seguro de eliminar a "${admin.nombre}"? Se le quitarán los permisos de administrador de delivery.`}
+                        deleteAction={deleteDeliveryAdmin}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

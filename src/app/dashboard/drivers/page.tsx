@@ -1,6 +1,6 @@
-import { getDrivers, deleteDriver } from "@/lib/actions/delivery"
+import { getDrivers, deleteDriver, getLogisticsAdminsSimple } from "@/lib/actions/delivery"
 import type { Driver, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Plus, Pencil } from "lucide-react"
 import Link from "next/link"
 import CreateDriverWrapper from "@/components/delivery/CreateDriverWrapper"
 import DeleteButton from "@/components/ui/DeleteButton"
@@ -30,6 +30,14 @@ export default async function DriversPage({
     error = e instanceof Error ? e.message : "Error al cargar choferes"
   }
 
+  let empresas: { id: string; name: string }[] = []
+  try {
+    empresas = await getLogisticsAdminsSimple()
+  } catch {
+    // Delivery App no disponible
+  }
+  const empresaMap = new Map(empresas.map((e) => [e.id, e.name]))
+
   function tabUrl(value: string) {
     const params = new URLSearchParams()
     if (value) params.set("estado", value)
@@ -45,7 +53,7 @@ export default async function DriversPage({
         <CreateDriverWrapper />
       </div>
 
-      {error && (
+{error && (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </div>
@@ -103,6 +111,7 @@ export default async function DriversPage({
             <thead>
               <tr className="border-b border-slate-200 text-left dark:border-slate-700">
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Nombre</th>
+                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Empresa</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Teléfono</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Estado</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Disponible</th>
@@ -115,7 +124,7 @@ export default async function DriversPage({
             <tbody>
               {(!data || data.items.length === 0) && !error && (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={9} className="px-6 py-12 text-center text-slate-400">
                     No hay choferes registrados
                   </td>
                 </tr>
@@ -127,6 +136,7 @@ export default async function DriversPage({
                       {driver.nombre}
                     </Link>
                   </td>
+                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{empresaMap.get(driver.idVendedor) || "—"}</td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.telefono || "—"}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -146,12 +156,21 @@ export default async function DriversPage({
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.vehiculo?.patente || "—"}</td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.pedidosAsignados}</td>
                   <td className="px-6 py-4">
-                    <DeleteButton
-                      id={driver.idChofer}
-                      label={driver.nombre}
-                      message={`¿Estás seguro de eliminar a "${driver.nombre}"? Esta acción no se puede deshacer.`}
-                      deleteAction={deleteDriver}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/dashboard/drivers/${driver.idChofer}`}
+                        className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        title={`Editar ${driver.nombre}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      <DeleteButton
+                        id={driver.idChofer}
+                        label={driver.nombre}
+                        message={`¿Estás seguro de eliminar a "${driver.nombre}"? Esta acción no se puede deshacer.`}
+                        deleteAction={deleteDriver}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

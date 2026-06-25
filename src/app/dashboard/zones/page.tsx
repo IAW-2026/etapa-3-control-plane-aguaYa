@@ -1,6 +1,6 @@
 import { getZones, deleteZone } from "@/lib/actions/delivery"
 import type { Zone, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Pencil } from "lucide-react"
 import Link from "next/link"
 import CreateZoneWrapper from "@/components/delivery/CreateZoneWrapper"
 import DeleteButton from "@/components/ui/DeleteButton"
@@ -86,12 +86,21 @@ export default async function ZonesPage({
                     {zone.empresas.length > 0 ? zone.empresas.join(", ") : "—"}
                   </td>
                   <td className="px-6 py-4">
-                    <DeleteButton
-                      id={zone.idZona}
-                      label={zone.nombre}
-                      message={`¿Estás seguro de eliminar la zona "${zone.nombre}"? Se desasignarán los choferes y se eliminarán los vínculos con empresas. Esta acción no se puede deshacer.`}
-                      deleteAction={deleteZone}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/dashboard/zones/${zone.idZona}`}
+                        className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        title={`Editar ${zone.nombre}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      <DeleteButton
+                        id={zone.idZona}
+                        label={zone.nombre}
+                        message={`¿Estás seguro de eliminar la zona "${zone.nombre}"? Se desasignarán los choferes y se eliminarán los vínculos con empresas. Esta acción no se puede deshacer.`}
+                        deleteAction={deleteZone}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
