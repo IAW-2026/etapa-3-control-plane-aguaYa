@@ -43,6 +43,7 @@ export const feedbackNav: NavItem[] = [
 export const buyerNav: NavItem[] = [
   { label: "Compradores", href: "/dashboard/buyers", icon: Users },
   { label: "Pedidos", href: "/dashboard/buyer-orders", icon: ShoppingCart },
+  { label: "Admin Buyer", href: "/dashboard/buyer-admins", icon: Shield },
 ]
 
 export type NavSection = {

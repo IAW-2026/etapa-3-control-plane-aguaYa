@@ -296,3 +296,25 @@ export type UpdateSellerAdminData = {
   nombre?: string;
   telefono?: string;
 };
+
+/* Admin Buyer */
+export type AdminBuyer = {
+  clerkUserId: string;
+  email: string;
+  nombre: string | null;
+  telefono: string | null;
+  isBlocked: boolean;
+  createdAt: string;
+};
+
+export type CreateAdminBuyerData = {
+  email: string;
+  password: string;
+  nombre: string;
+  telefono?: string;
+};
+
+export type UpdateAdminBuyerData = {
+  nombre?: string;
+  telefono?: string;
+};

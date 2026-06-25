@@ -96,3 +96,27 @@ Se actualizó el Control Plane para que las zonas puedan vincularse con empresas
 - CreateZoneModal carga vendors via `getVendorsSimple()`, checkboxes tipo toggle, envía `{ nombre, empresas: string[] }`
 - ZoneDetailClient muestra badges editables con × para quitar, "+" para agregar del listado de vendors disponibles, y botón "Guardar empresas" que llama `updateZone({ nombre, empresas })`
 <!-- END:session-2026-06-25b -->
+
+<!-- BEGIN:session-2026-06-25c -->
+# Session: Admin Buyer (CRUD completo + creación dual)
+
+## Resumen
+CRUD completo de administradores de Buyer App (rol `admin_buyer` en Clerk) con dos formas de creación: desde cero (nuevo usuario Clerk) o convirtiendo un buyer existente.
+
+## Archivos creados
+- `src/lib/types.ts` — Tipos `AdminBuyer`, `CreateAdminBuyerData`, `UpdateAdminBuyerData`
+- `src/lib/actions/buyer-admin.ts` — Server actions: `getBuyerAdmins`, `getBuyerAdmin`, `createBuyerAdmin`, `convertBuyerToAdmin`, `updateBuyerAdmin`, `toggleBuyerAdmin`, `deleteBuyerAdmin`
+- `src/components/buyer/CreateBuyerAdminModal.tsx` — Modal con dos tabs: "Desde cero" (email, password, nombre, teléfono) y "Desde buyer" (dropdown de buyers existentes)
+- `src/components/buyer/CreateBuyerAdminWrapper.tsx` — Wrapper client
+- `src/components/buyer/BuyerAdminDetailClient.tsx` — Detail client con toggle, editar, eliminar
+- `src/app/dashboard/buyer-admins/page.tsx` — Lista con tabs, búsqueda, paginación, botón Editar + Eliminar
+- `src/app/dashboard/buyer-admins/[clerkUserId]/page.tsx` — Server page de detalle
+
+## Archivos modificados
+- `src/lib/navigation.ts` — "Admin Buyer" agregado a `buyerNav`
+
+## Patrones
+- `createBuyerAdmin` y `convertBuyerToAdmin` usan Clerk API directamente (como `createSellerAdmin`)
+- `convertBuyerToAdmin` recibe `buyerUserId` (Clerk ID), busca el user en Clerk, agrega `admin_buyer` a `publicMetadata.roles`
+- El modal filtra buyers que ya son admins para evitar conversiones duplicadas
+<!-- END:session-2026-06-25c -->
