@@ -10,6 +10,8 @@ import {
   CreditCard,
   Users,
   FileText,
+  MessageSquareQuote,
+  Star,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,7 +36,10 @@ export const deliveryNav: NavItem[] = [
   { label: "Logísticos", href: "/dashboard/logistics-admins", icon: Shield },
   { label: "Admin Delivery", href: "/dashboard/delivery-admins", icon: Shield },
 ];
-
+export const feedbackNav: NavItem[] = [
+  { label: "Reseñas", href: "/dashboard/feedback/resenas", icon: MessageSquareQuote },
+  { label: "Valoraciones", href: "/dashboard/feedback/valoraciones", icon: Star },
+];
 export type NavSection = {
   title: string;
   items: NavItem[];
@@ -59,5 +64,6 @@ export const facturasNav: NavItem[] = [
 export const navSections: NavSection[] = [
   { title: "Seller App", items: mainNav.slice(1) },
   { title: "Delivery App", items: deliveryNav },
+  { title: "Feedback App", items: feedbackNav },
   { title: "Payment App", items: [...paymentNav, ...facturasNav, ...usuariosPaymentsNav, ...adminPaymentsNav] },
 ];
