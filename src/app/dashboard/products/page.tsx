@@ -23,7 +23,7 @@ export default function ProductsPage() {
   const load = useCallback(async (p: number, s: string) => {
     setLoading(true)
     try {
-      const res = await getProducts({ page: String(p), pageSize: String(PAGE_SIZE), ...(s ? { search: s } : {}) })
+      const res = await getProducts({ page: String(p), pageSize: String(PAGE_SIZE), ...(s ? { q: s } : {}) })
       setProducts(res.items)
       setTotal(res.total)
     } catch {

@@ -25,10 +25,11 @@ export default function VendorProductsBox({ vendorId }: Props) {
   const load = useCallback(async (p: number) => {
     setLoading(true)
     try {
-      const res = await getVendorProducts(vendorId, { page: String(p), pageSize: String(PAGE_SIZE) })
+      const res = await getVendorProducts(vendorId, { page: String(p), limit: String(PAGE_SIZE) })
       setProducts(res.items)
       setTotal(res.total)
-    } catch {
+    } catch (e) {
+      console.error("Error loading vendor products:", e)
       setProducts([])
       setTotal(0)
     } finally {

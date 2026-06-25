@@ -29,14 +29,15 @@ export default function VendorOrdersBox({ vendorId, vendorName }: Props) {
   const load = useCallback(async (p: number, s?: string, df?: string, dt?: string) => {
     setLoading(true)
     try {
-      const params: Record<string, string> = { page: String(p), pageSize: String(PAGE_SIZE) }
-      if (s) params.search = s
-      if (df) params.dateFrom = df
-      if (dt) params.dateTo = dt
+      const params: Record<string, string> = { page: String(p), limit: String(PAGE_SIZE) }
+      if (s) params.q = s
+      if (df) params.from = df
+      if (dt) params.to = dt
       const res = await getVendorOrders(vendorId, params)
       setOrders(res.items)
       setTotal(res.total)
-    } catch {
+    } catch (e) {
+      console.error("Error loading vendor orders:", e)
       setOrders([])
       setTotal(0)
     } finally {
