@@ -1,6 +1,6 @@
 import { getDrivers, deleteDriver } from "@/lib/actions/delivery"
 import type { Driver, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Plus, Pencil } from "lucide-react"
 import Link from "next/link"
 import CreateDriverWrapper from "@/components/delivery/CreateDriverWrapper"
 import DeleteButton from "@/components/ui/DeleteButton"
@@ -146,12 +146,21 @@ export default async function DriversPage({
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.vehiculo?.patente || "—"}</td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{driver.pedidosAsignados}</td>
                   <td className="px-6 py-4">
-                    <DeleteButton
-                      id={driver.idChofer}
-                      label={driver.nombre}
-                      message={`¿Estás seguro de eliminar a "${driver.nombre}"? Esta acción no se puede deshacer.`}
-                      deleteAction={deleteDriver}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/dashboard/drivers/${driver.idChofer}`}
+                        className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        title={`Editar ${driver.nombre}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      <DeleteButton
+                        id={driver.idChofer}
+                        label={driver.nombre}
+                        message={`¿Estás seguro de eliminar a "${driver.nombre}"? Esta acción no se puede deshacer.`}
+                        deleteAction={deleteDriver}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
