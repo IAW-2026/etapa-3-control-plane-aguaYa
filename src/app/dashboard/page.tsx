@@ -1,36 +1,57 @@
-import { sellerApi } from "@/lib/api"
-import { deliveryApi } from "@/lib/api-delivery"
-import { Store, Package, ShoppingCart, Truck } from "lucide-react"
+"use client"
 
-async function getStats() {
-  let totalVendors = 0, totalProducts = 0, totalDrivers = 0
+import { useState, useEffect } from "react"
+import { getVendors, getProducts } from "@/lib/actions/vendor"
+import { getSellerAdmins } from "@/lib/actions/seller-admin"
+import { getBuyersCount } from "@/lib/actions/buyer"
+import { getPayments } from "@/lib/actions/payments"
+import { getValoraciones, getResenas } from "@/lib/actions/feedback"
+import { Store, Package, Shield, Users, CreditCard, Star, MessageSquare, Truck, Loader2 } from "lucide-react"
 
-  try {
-    const vendors = await sellerApi.get("/api/admin/vendors")
-    totalVendors = vendors?.total ?? 0
-  } catch {}
+type KpiState = number | null | "loading"
 
-  try {
-    const products = await sellerApi.get("/api/admin/products")
-    totalProducts = products?.total ?? 0
-  } catch {}
+export default function OverviewPage() {
+  const [vendors, setVendors] = useState<KpiState>("loading")
+  const [products, setProducts] = useState<KpiState>("loading")
+  const [sellerAdmins, setSellerAdmins] = useState<KpiState>("loading")
+  const [buyers, setBuyers] = useState<KpiState>("loading")
+  const [transactions, setTransactions] = useState<KpiState>("loading")
+  const [ratings, setRatings] = useState<KpiState>("loading")
+  const [reviews, setReviews] = useState<KpiState>("loading")
 
-  try {
-    const drivers = await deliveryApi.get("/api/admin/drivers")
-    totalDrivers = drivers?.total ?? 0
-  } catch {}
+  useEffect(() => {
+    async function load() {
+      const results = await Promise.allSettled([
+        getVendors({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
+        getProducts({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
+        getSellerAdmins({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
+        getBuyersCount(),
+        getPayments({ page: 1 }).then(r => r.total ?? 0).catch(() => null),
+        getValoraciones({ limit: 1 }).then(r => r.total ?? 0).catch(() => null),
+        getResenas({ limit: 1 }).then(r => r.total ?? 0).catch(() => null),
+      ])
 
-  return { totalVendors, totalProducts, totalDrivers }
-}
-
-export default async function OverviewPage() {
-  const stats = await getStats()
+      const values = results.map(r => r.status === "fulfilled" ? r.value : null)
+      setVendors(values[0])
+      setProducts(values[1])
+      setSellerAdmins(values[2])
+      setBuyers(values[3])
+      setTransactions(values[4])
+      setRatings(values[5])
+      setReviews(values[6])
+    }
+    load()
+  }, [])
 
   const cards = [
-    { label: "Vendedores", value: stats.totalVendors, icon: Store, color: "bg-blue-500" },
-    { label: "Productos", value: stats.totalProducts, icon: Package, color: "bg-emerald-500" },
-    { label: "Pedidos", value: "—", icon: ShoppingCart, color: "bg-amber-500" },
-    { label: "Choferes", value: stats.totalDrivers, icon: Truck, color: "bg-violet-500" },
+    { label: "Vendedores", value: vendors, icon: Store, color: "bg-blue-500" },
+    { label: "Productos", value: products, icon: Package, color: "bg-emerald-500" },
+    { label: "Admin Seller", value: sellerAdmins, icon: Shield, color: "bg-violet-500" },
+    { label: "Compradores", value: buyers, icon: Users, color: "bg-indigo-500" },
+    { label: "Transacciones", value: transactions, icon: CreditCard, color: "bg-amber-500" },
+    { label: "Valoraciones", value: ratings, icon: Star, color: "bg-pink-500" },
+    { label: "Reseñas", value: reviews, icon: MessageSquare, color: "bg-teal-500" },
+    { label: "Choferes", value: null, icon: Truck, color: "bg-slate-400" },
   ]
 
   return (
@@ -51,7 +72,15 @@ export default async function OverviewPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{card.label}</p>
-                  <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{card.value}</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    {card.value === "loading" ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-slate-300" />
+                    ) : card.value === null ? (
+                      "—"
+                    ) : (
+                      Number(card.value).toLocaleString("es-AR")
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
