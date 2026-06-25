@@ -3,16 +3,15 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import type { SellerAdmin } from "@/lib/types"
-import { toggleSellerAdmin, updateSellerAdmin, deleteSellerAdmin } from "@/lib/actions/seller-admin"
+import { updateSellerAdmin, deleteSellerAdmin } from "@/lib/actions/seller-admin"
 import { useToast } from "@/components/ui/ToastProvider"
 import Modal from "@/components/ui/Modal"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
-import { ChevronLeft, Power, Pencil, Trash2, Loader2 } from "lucide-react"
+import { ChevronLeft, Pencil, Trash2, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function SellerAdminDetailClient({ admin: initial }: { admin: SellerAdmin }) {
   const [admin, setAdmin] = useState(initial)
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { showToast } = useToast()
 
@@ -28,19 +27,6 @@ export default function SellerAdminDetailClient({ admin: initial }: { admin: Sel
     setEditNombre(admin.nombre ?? "")
     setEditTelefono(admin.telefono ?? "")
     setEditOpen(true)
-  }
-
-  async function handleToggle() {
-    setLoading(true)
-    try {
-      const res = await toggleSellerAdmin(admin.clerkUserId)
-      setAdmin((prev) => ({ ...prev, isBlocked: res.nuevoEstado === "bloqueado" }))
-      showToast("success", `Admin seller ${res.nuevoEstado === "bloqueado" ? "bloqueado" : "desbloqueado"}`)
-    } catch {
-      showToast("error", "Error al cambiar estado del admin seller")
-    } finally {
-      setLoading(false)
-    }
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -103,14 +89,6 @@ export default function SellerAdminDetailClient({ admin: initial }: { admin: Sel
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleToggle}
-              disabled={loading}
-              className="flex items-center gap-1.5 rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-50 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
-            >
-              <Power className="h-4 w-4" />
-              {admin.isBlocked ? "Desbloquear" : "Bloquear"}
-            </button>
             <button
               type="button"
               onClick={openEdit}

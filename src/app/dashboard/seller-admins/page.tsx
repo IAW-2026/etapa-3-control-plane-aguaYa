@@ -3,9 +3,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { getSellerAdmins, deleteSellerAdmin } from "@/lib/actions/seller-admin"
 import type { SellerAdmin, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight, Loader2, Shield } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Loader2, Shield, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { Trash2 } from "lucide-react"
 import CreateSellerAdminWrapper from "@/components/seller/CreateSellerAdminWrapper"
 
 const PAGE_SIZE = 10
@@ -14,14 +13,13 @@ export default function SellerAdminsPage() {
   const [data, setData] = useState<ListResponse<SellerAdmin> | null>(null)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
-  const [activeTab, setActiveTab] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
 
   const pageCount = Math.max(1, data?.pageCount ?? 1)
 
-  const load = useCallback(async (p: number, s: string, tab: string) => {
+  const load = useCallback(async (p: number, s: string) => {
     setLoading(true)
     setError(null)
     try {
@@ -30,7 +28,6 @@ export default function SellerAdminsPage() {
         limit: String(PAGE_SIZE),
       }
       if (s) params.q = s
-      if (tab) params.isBlocked = tab
       const res = await getSellerAdmins(params)
       setData(res)
     } catch (e) {
@@ -42,22 +39,16 @@ export default function SellerAdminsPage() {
   }, [])
 
   useEffect(() => {
-    load(page, search, activeTab)
+    load(page, search)
   }, [page, reloadKey, load])
 
   function handleSearch() {
     setPage(1)
-    load(1, search, activeTab)
+    load(1, search)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter") handleSearch()
-  }
-
-  function switchTab(tab: string) {
-    setActiveTab(tab)
-    setPage(1)
-    load(1, search, tab)
   }
 
   async function handleDelete(id: string) {
@@ -80,27 +71,6 @@ export default function SellerAdminsPage() {
           {error}
         </div>
       )}
-
-      <div className="mb-4 flex gap-1 rounded-xl bg-gradient-to-br from-slate-100/70 to-slate-200/50 p-1 shadow-lg shadow-black/5 backdrop-blur-xl dark:from-slate-800/60 dark:to-slate-800/40">
-        {[
-          { label: "Todos", value: "" },
-          { label: "Bloqueados", value: "true" },
-          { label: "Activos", value: "false" },
-        ].map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            onClick={() => switchTab(tab.value)}
-            className={`flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-all ${
-              activeTab === tab.value
-                ? "bg-gradient-to-br from-white/60 to-slate-100/60 text-slate-900 shadow-sm backdrop-blur-sm dark:from-slate-700 dark:to-slate-600 dark:text-white"
-                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
 
       <div className="mb-6">
         <div className="relative max-w-md">
