@@ -103,7 +103,6 @@ export default function SellerAdminsPage() {
                 <tr className="border-b border-white/20 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:border-slate-700/30 dark:text-slate-400">
                   <th className="px-6 py-4">Email</th>
                   <th className="px-6 py-4">Nombre</th>
-                  <th className="px-6 py-4">Estado</th>
                   <th className="px-6 py-4">Acciones</th>
                 </tr>
               </thead>
@@ -116,15 +115,6 @@ export default function SellerAdminsPage() {
                       </Link>
                     </td>
                     <td className="px-6 py-4 text-slate-700 dark:text-slate-300">{admin.nombre || "—"}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        admin.isBlocked
-                          ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      }`}>
-                        {admin.isBlocked ? "Bloqueado" : "Activo"}
-                      </span>
-                    </td>
                     <td className="px-6 py-4">
                       <button
                         type="button"
