@@ -3,10 +3,9 @@
 import { useState, useEffect, useCallback } from "react"
 import { getAllBuyerOrders, deleteBuyerOrderGlobal } from "@/lib/actions/buyer"
 import type { BuyerOrder } from "@/lib/types"
-import CreateGlobalOrderModal from "@/components/buyer/CreateGlobalOrderModal"
 import BuyerOrderStatusModal from "@/components/buyer/BuyerOrderStatusModal"
 import DeleteButton from "@/components/ui/DeleteButton"
-import { Search, ChevronLeft, ChevronRight, Plus, ShoppingCart, Loader2, Pencil } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ShoppingCart, Loader2, Pencil } from "lucide-react"
 
 const STATUS_TABS = [
   { key: "", label: "Todos" },
@@ -26,7 +25,6 @@ export default function BuyerOrdersPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState("")
   const [statusTab, setStatusTab] = useState("")
-  const [showCreate, setShowCreate] = useState(false)
   const [editOrder, setEditOrder] = useState<BuyerOrder | null>(null)
 
   const PAGE_SIZE = 10
@@ -86,14 +84,6 @@ export default function BuyerOrdersPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-700 dark:text-sky-400">Buyer App</p>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Pedidos</h1>
         </div>
-        <button
-          type="button"
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" />
-          Nueva Orden
-        </button>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-1 rounded-xl bg-linear-to-br from-slate-100/70 to-slate-200/50 p-1 shadow-lg shadow-black/5 backdrop-blur-xl dark:from-slate-800/60 dark:to-slate-800/40">
@@ -220,12 +210,6 @@ export default function BuyerOrdersPage() {
           </div>
         )}
       </div>
-
-      <CreateGlobalOrderModal
-        isOpen={showCreate}
-        onClose={() => setShowCreate(false)}
-        onSuccess={() => { setShowCreate(false); load() }}
-      />
 
       {editOrder && (
         <BuyerOrderStatusModal
