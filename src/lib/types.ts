@@ -259,3 +259,17 @@ export type CreateBuyerData = {
   mail: string
   name: string
 }
+
+export type CreateBuyerOrderData = {
+  vendor_id: string
+  buyer_id: string
+  buyer_user_id: string
+  total: number
+  address_id?: string
+  items?: Array<{
+    product_id: string
+    product_name: string
+    product_price: number
+    quantity: number
+  }>
+}

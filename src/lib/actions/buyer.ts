@@ -2,7 +2,7 @@
 
 import { buyerApi } from '@/lib/api-buyer'
 import { revalidatePath } from 'next/cache'
-import type { Buyer, BuyerAddress, BuyerOrder, Favorite, CreateBuyerData } from '@/lib/types'
+import type { Buyer, BuyerAddress, BuyerOrder, Favorite, CreateBuyerData, CreateBuyerOrderData } from '@/lib/types'
 
 /* ───── Buyers ───── */
 
@@ -68,6 +68,12 @@ export async function getBuyerOrders(buyerId: string) {
 export async function deleteBuyerOrder(orderId: string, buyerId: string) {
   await buyerApi.delete(`/api/orders/${orderId}`)
   revalidatePath(`/dashboard/buyers/${buyerId}`)
+}
+
+export async function createBuyerOrder(data: CreateBuyerOrderData) {
+  const res = await buyerApi.post('/api/orders', data) as { order: BuyerOrder }
+  revalidatePath(`/dashboard/buyers/${data.buyer_id}`)
+  return res.order
 }
 
 /* ───── Favorites ───── */
