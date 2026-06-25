@@ -208,3 +208,54 @@ export type UpdateSellerAdminData = {
   nombre?: string
   telefono?: string
 }
+
+/* Buyer App types */
+export type Buyer = {
+  buyer_id: string
+  user_id: string
+  mail: string
+  name: string
+  phone_numbers?: string
+  is_active: boolean
+}
+
+export type BuyerAddress = {
+  id: string
+  street: string
+  city: string
+  zip: string
+  buyer_id: string
+}
+
+export type BuyerOrder = {
+  order_id: string
+  vendor_id: string
+  buyer_id: string
+  buyer_user_id: string
+  status: string
+  status_reason?: string
+  total: number
+  address_id?: string
+  created_at: string
+  updated_at: string
+}
+
+export type BuyerOrderItem = {
+  id: string
+  order_id: string
+  product_id: string
+  product_name: string
+  product_price: number
+  quantity: number
+}
+
+export type Favorite = {
+  buyer_id: string
+  vendor_id: string
+}
+
+export type CreateBuyerData = {
+  user_id: string
+  mail: string
+  name: string
+}

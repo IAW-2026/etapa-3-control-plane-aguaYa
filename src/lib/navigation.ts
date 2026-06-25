@@ -9,6 +9,7 @@ import {
   Shield,
   MessageSquareQuote,
   Star,
+  Users,
   type LucideIcon,
 } from "lucide-react"
 
@@ -35,6 +36,9 @@ export const feedbackNav: NavItem[] = [
   { label: "Reseñas", href: "/dashboard/feedback/resenas", icon: MessageSquareQuote },
   { label: "Valoraciones", href: "/dashboard/feedback/valoraciones", icon: Star },
 ]
+export const buyerNav: NavItem[] = [
+  { label: "Compradores", href: "/dashboard/buyers", icon: Users },
+]
 export type NavSection = {
   title: string
   items: NavItem[]
@@ -43,5 +47,6 @@ export type NavSection = {
 export const navSections: NavSection[] = [
   { title: "Seller App", items: mainNav.slice(1) },
   { title: "Delivery App", items: deliveryNav },
+  { title: "Buyer App", items: buyerNav },
   { title: "Feedback App", items: feedbackNav },
 ]

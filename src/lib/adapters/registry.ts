@@ -1,10 +1,12 @@
 import type { OrderAppAdapter } from './types'
 import { SellerAdapter } from './seller'
 import { DeliveryAdapter } from './delivery'
+import { BuyerAdapter } from './buyer'
 
 const adapterFactories: Record<string, (url: string, apiKey: string, name: string) => OrderAppAdapter> = {
   seller: (url, apiKey, name) => new SellerAdapter(url, apiKey, name),
   delivery: (url, apiKey, name) => new DeliveryAdapter(url, apiKey, name),
+  buyer: (url, apiKey, name) => new BuyerAdapter(url, apiKey, name),
 }
 
 export function discoverApps(): OrderAppAdapter[] {

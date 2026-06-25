@@ -1,0 +1,168 @@
+﻿ENDPOINTS DE LA API — proyecto-b-buyer-AguaYa
+=============================================
+
+Autenticación: todas las rutas (excepto /api/auth/* y /api/webhooks/*) requieren
+el header "x-api-key" con el valor de BUYER_API_KEY.
+
+------------------------------------------------------------------------------
+/api/buyers
+------------------------------------------------------------------------------
+  GET    /api/buyers
+         Descripción: Obtiene la lista de todos los compradores registrados.
+         Respuesta: { buyers: Buyer[] }
+
+  POST   /api/buyers
+         Descripción: Crea un nuevo comprador si no existe.
+         Body: { user_id: string, mail: string, name: string }
+         Respuesta: { buyer: Buyer } (status 201)
+
+------------------------------------------------------------------------------
+/api/buyers/[buyer_id]
+------------------------------------------------------------------------------
+  GET    /api/buyers/:buyer_id
+         Descripción: Obtiene un comprador por su ID interno.
+         Respuesta: { buyer: Buyer }
+
+  PATCH  /api/buyers/:buyer_id
+         Descripción: Actualiza parcialmente los datos de un comprador.
+         Body: { ...campos a actualizar }
+         Respuesta: { buyer: Buyer }
+
+  DELETE /api/buyers/:buyer_id
+         Descripción: Elimina un comprador por su ID.
+         Respuesta: { ok: true }
+
+------------------------------------------------------------------------------
+/api/buyers/by-user/[user_id]
+------------------------------------------------------------------------------
+  GET    /api/buyers/by-user/:user_id
+         Descripción: Obtiene un comprador por su user_id de Clerk.
+         Respuesta: { buyer_id: string, name: string }
+
+------------------------------------------------------------------------------
+/api/buyers/[buyer_id]/addresses
+------------------------------------------------------------------------------
+  GET    /api/buyers/:buyer_id/addresses
+         Descripción: Obtiene todas las direcciones de un comprador.
+         Respuesta: { addresses: Address[] }
+
+  POST   /api/buyers/:buyer_id/addresses
+         Descripción: Crea una nueva dirección para un comprador.
+         Body: { street: string, city: string, zip: string }
+         Respuesta: { address: Address } (status 201)
+
+------------------------------------------------------------------------------
+/api/addresses/[address_id]
+------------------------------------------------------------------------------
+  GET    /api/addresses/:address_id
+         Descripción: Obtiene una dirección por su ID.
+         Respuesta: { address: Address }
+
+  PATCH  /api/addresses/:address_id
+         Descripción: Actualiza parcialmente los datos de una dirección.
+         Body: { street?: string, city?: string, zip?: string }
+         Respuesta: { address: Address }
+
+  DELETE /api/addresses/:address_id
+         Descripción: Elimina una dirección por su ID.
+         Respuesta: { ok: true }
+
+------------------------------------------------------------------------------
+/api/orders
+------------------------------------------------------------------------------
+  GET    /api/orders
+         Descripción: Obtiene todas las órdenes. Opcional: ?buyer_id=xxx filtra
+         por comprador.
+         Respuesta: { orders: Order[] }
+
+  POST   /api/orders
+         Descripción: Crea una nueva orden.
+         Body: { vendor_id, buyer_id, buyer_user_id, total, address_id?, items? }
+         Respuesta: { order: Order } (status 201)
+
+------------------------------------------------------------------------------
+/api/orders/[order_id]
+------------------------------------------------------------------------------
+  GET    /api/orders/:order_id
+         Descripción: Obtiene una orden por su ID.
+         Respuesta: { order: Order }
+
+  PATCH  /api/orders/:order_id
+         Descripción: Actualiza el estado de una orden. Opcionalmente incluye
+         status_reason para registrar el motivo del cambio.
+         Body: { orderStatus: OrderStatus, status_reason?: string }
+         Respuesta: { ok: true }
+
+  DELETE /api/orders/:order_id
+         Descripción: Elimina una orden por su ID.
+         Respuesta: { ok: true }
+
+------------------------------------------------------------------------------
+/api/favorites
+------------------------------------------------------------------------------
+  GET    /api/favorites
+         Descripción: Obtiene todos los favoritos. Opcional: ?buyer_id=xxx filtra
+         por comprador.
+         Respuesta: { favorites: Favorite[] }
+
+  POST   /api/favorites
+         Descripción: Agrega un vendedor a favoritos de un comprador.
+         Body: { buyer_id: string, vendor_id: string }
+         Respuesta: { favorite: Favorite } (status 201)
+
+  DELETE /api/favorites
+         Descripción: Elimina un vendedor de favoritos.
+         Query: ?buyer_id=xxx&vendor_id=xxx
+         Respuesta: { ok: true }
+
+------------------------------------------------------------------------------
+/api/auth/create-buyer
+------------------------------------------------------------------------------
+  GET    /api/auth/create-buyer
+         Descripción: Crea un perfil de comprador a partir de la sesión actual
+         de Clerk. Si ya existe, redirige al home. NO requiere x-api-key.
+         Respuesta: Redirección a "/"
+
+------------------------------------------------------------------------------
+/api/webhooks/clerk
+-------------------------------------------------------------------------------
+  POST   /api/webhooks/clerk
+         Descripción: Webhook de Clerk. Escucha eventos "user.created" y
+         "session.created" para crear automáticamente un buyer asociado.
+         NO requiere x-api-key (usa verificación por Svix).
+         Respuesta: "OK" (status 200)
+
+-------------------------------------------------------------------------------
+ENDPOINTS DE ANALYTICS — todos requieren x-api-key
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+/api/analytics/overview
+-------------------------------------------------------------------------------
+  GET    /api/analytics/overview
+         Descripción: Métricas consolidadas del sistema: total de compradores
+         (activos/inactivos), total de órdenes por estado, revenue total.
+         Respuesta: { buyers: { total, active, inactive }, orders: { by_status, total }, revenue: number }
+
+-------------------------------------------------------------------------------
+/api/analytics/orders/timeline
+-------------------------------------------------------------------------------
+  GET    /api/analytics/orders/timeline
+         Descripción: Órdenes agrupadas por día/semana/mes. Filtros opcionales:
+         ?from=DATE&to=DATE&status=OrderStatus&group_by=day|week|month
+         Respuesta: { timeline: { date: string, count: number, revenue: number }[] }
+
+-------------------------------------------------------------------------------
+/api/analytics/buyers/stats
+-------------------------------------------------------------------------------
+  GET    /api/analytics/buyers/stats
+         Descripción: Estadísticas de compradores. Devuelve totales y detalle
+         de cada comprador con conteo de favoritos y direcciones.
+         Respuesta: { totals: { total, active, inactive }, buyers: Buyer[] }
+
+-------------------------------------------------------------------------------
+/api/analytics/revenue
+-------------------------------------------------------------------------------
+  GET    /api/analytics/revenue
+         Descripción: Revenue total y desglosado por vendedor. Filtros opcionales:
+         ?from=DATE&to=DATE
+         Respuesta: { total_revenue: number, total_orders: number, by_vendor: { vendor_id, revenue, orders }[] }
