@@ -21,6 +21,7 @@ export const mainNav: NavItem[] = [
   { label: "Vendedores", href: "/dashboard/vendors", icon: Store },
   { label: "Productos", href: "/dashboard/products", icon: Package },
   { label: "Pedidos", href: "/dashboard/orders", icon: ShoppingCart },
+  { label: "Admin Seller", href: "/dashboard/seller-admins", icon: Shield },
 ]
 
 export const deliveryNav: NavItem[] = [

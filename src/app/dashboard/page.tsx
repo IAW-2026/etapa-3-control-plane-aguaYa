@@ -7,12 +7,12 @@ async function getStats() {
 
   try {
     const vendors = await sellerApi.get("/api/admin/vendors")
-    totalVendors = Array.isArray(vendors) ? vendors.length : 0
+    totalVendors = vendors?.total ?? 0
   } catch {}
 
   try {
     const products = await sellerApi.get("/api/admin/products")
-    totalProducts = Array.isArray(products) ? products.length : 0
+    totalProducts = products?.total ?? 0
   } catch {}
 
   try {
@@ -50,8 +50,6 @@ export default async function OverviewPage() {
                   <Icon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{card.label}</p>
-                  <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{card.value}</p>
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{card.label}</p>
                   <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{card.value}</p>
                 </div>

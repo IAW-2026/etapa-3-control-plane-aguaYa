@@ -1,7 +1,7 @@
 "use client"
 
 import Modal from "@/components/ui/Modal"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { updateOrderStatus } from "@/lib/actions/vendor"
 import { useToast } from "@/components/ui/ToastProvider"
 import type { OrderItem } from "@/lib/types"
@@ -17,12 +17,18 @@ type Props = {
 export default function OrderDetailModal({ order, vendorName, isOpen, onClose, onStatusChange }: Props) {
   const { showToast } = useToast()
   const [toggling, setToggling] = useState(false)
+  const [localStatus, setLocalStatus] = useState(order.status)
+
+  useEffect(() => {
+    setLocalStatus(order.status)
+  }, [order.status, isOpen])
 
   async function handleToggle() {
-    const nextStatus = order.status === "PAID" ? "READY" : "PAID"
+    const nextStatus = localStatus === "PAID" ? "READY" : "PAID"
     setToggling(true)
     try {
       await updateOrderStatus(order.id, nextStatus)
+      setLocalStatus(nextStatus)
       showToast("success", "Estado actualizado a " + (nextStatus === "PAID" ? "Pagada" : "Lista"))
       onStatusChange()
     } catch {
@@ -53,14 +59,14 @@ export default function OrderDetailModal({ order, vendorName, isOpen, onClose, o
             <div className="flex items-center gap-2">
               <span
                 className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                  order.status === "PAID"
+                  localStatus === "PAID"
                     ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                    : order.status === "READY"
+                    : localStatus === "READY"
                       ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                       : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                 }`}
               >
-                {order.status === "PAID" ? "Pagada" : order.status === "READY" ? "Lista" : order.status}
+                {localStatus === "PAID" ? "Pagada" : localStatus === "READY" ? "Lista" : localStatus}
               </span>
               <button
                 type="button"
@@ -68,7 +74,7 @@ export default function OrderDetailModal({ order, vendorName, isOpen, onClose, o
                 onClick={handleToggle}
                 className="ml-2 rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-2.5 py-1 text-xs text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-50 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
               >
-                {toggling ? "..." : order.status === "PAID" ? "Marcar como Lista" : "Marcar como Pagada"}
+                {toggling ? "..." : localStatus === "PAID" ? "Marcar como Lista" : "Marcar como Pagada"}
               </button>
             </div>
           </div>
