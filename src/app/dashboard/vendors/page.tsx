@@ -24,7 +24,7 @@ export default function VendorsPage() {
     try {
       const params: Record<string, string> = {
         page: String(p),
-        pageSize: String(PAGE_SIZE),
+        limit: String(PAGE_SIZE),
       }
       if (s) params.q = s
       if (tab) params.isActive = tab
