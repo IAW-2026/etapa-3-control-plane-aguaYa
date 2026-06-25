@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Control Plane — AguaYa
 
-## Getting Started
+Panel de administración centralizado del ecosistema **AguaYa**. Permite a un superadministrador gestionar todas las apps del sistema desde un único lugar: vendedores, productos, pedidos, conductores, zonas, reseñas, valoraciones, transacciones y más.
 
-First, run the development server:
+## Secciones del Dashboard
+
+| App | Funcionalidades |
+|---|---|
+| **Seller App** | Vendedores, Productos, Admin Seller |
+| **Delivery App** | Choferes, Vehículos, Zonas, Logísticos, Admin Delivery |
+| **Buyer App** | Compradores, Pedidos, Admin Buyer |
+| **Feedback App** | Reseñas, Valoraciones |
+| **Payment App** | Transacciones, Facturas, Usuarios, Admin Pagos |
+
+## Apps Integradas
+
+El control plane se conecta con las siguientes apps del ecosistema mediante sus APIs REST:
+
+| App | Variable de entorno | Endpoints Admin |
+|---|---|---|
+| Seller | `SELLER_APP_URL` | `/api/admin/vendors`, `/api/admin/products`, `/api/admin/orders` |
+| Delivery | `DELIVERY_APP_URL` | `/api/admin/drivers`, `/api/admin/vehicles`, `/api/admin/zones`, `/api/admin/deliveries` |
+| Feedback | `FEEDBACK_APP_URL` | `/api/analytics/reviews`, `/api/analytics/valoraciones`, `/api/control/reviews/:id`, `/api/control/valoraciones/:id` |
+| Buyer | `BUYER_APP_URL` | `/api/admin/buyers`, `/api/admin/buyer-orders` |
+| Payment | `PAYMENT_APP_URL` | `/api/admin/pagos`, `/api/admin/facturas` |
+
+Cada app se autentica mediante una API Key compartida enviada en el header `x-api-key` o `Authorization`.
+
+## Tecnologías
+
+- **Framework:** Next.js 16 (App Router)
+- **UI:** React 19 + Tailwind CSS v4
+- **Autenticación:** Clerk
+- **Lenguaje:** TypeScript
+- **Íconos:** lucide-react
+- **Estilos:** Glassmorphism, diseño responsivo
+
+## Requisitos
+
+- Node.js >= 20
+
+## Instalación y ejecución
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Crear archivo de variables de entorno
+cp .env.example .env.local
+# Editar .env.local con las URLs y API keys de cada app
+
+# Iniciar en modo desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+El servidor arranca en `http://localhost:3001`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+### Rutas del dashboard
 
-To learn more about Next.js, take a look at the following resources:
+```
+/dashboard                          → Overview con estadísticas
+/dashboard/vendors                  → Vendedores
+/dashboard/vendors/[id]             → Detalle de vendedor
+/dashboard/products                 → Productos
+/dashboard/orders                   → Pedidos unificados
+/dashboard/seller-admins            → Admin Seller
+/dashboard/drivers                  → Choferes
+/dashboard/drivers/[id]             → Detalle de chofer
+/dashboard/vehicles                 → Vehículos
+/dashboard/zones                    → Zonas
+/dashboard/logistics-admins         → Logísticos
+/dashboard/delivery-admins          → Admin Delivery
+/dashboard/buyers                   → Compradores
+/dashboard/buyer-orders             → Pedidos Buyer
+/dashboard/buyer-admins             → Admin Buyer
+/dashboard/feedback/resenas         → Reseñas
+/dashboard/feedback/valoraciones    → Valoraciones
+/dashboard/pagos                    → Transacciones
+/dashboard/facturas                 → Facturas
+/dashboard/payment-admins           → Admin Pagos
+/dashboard/payment-users            → Usuarios Pagos
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
