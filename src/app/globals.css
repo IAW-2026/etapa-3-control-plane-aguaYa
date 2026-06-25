@@ -47,6 +47,14 @@ body {
   color: #f8fafc;
 }
 
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes toast-in {
   from {
     transform: translateX(100%);

@@ -16,7 +16,7 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
       href={item.href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        "flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
         isActive
           ? "bg-blue-600 text-white"
           : "text-slate-500 hover:bg-white/20 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white"
@@ -83,13 +83,13 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+        <nav className="scrollbar-none flex-1 space-y-1 overflow-y-auto p-3">
           <p className="px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">General</p>
           <NavLink item={mainNav[0]} isActive={pathname === mainNav[0].href} onClick={closeMobile} />
 
           {navSections.map((section) => (
             <div key={section.title}>
-              <p className="mt-6 px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <p className="mt-4 px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">
                 {section.title}
               </p>
               {section.items.map((item) => (
