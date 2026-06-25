@@ -15,7 +15,7 @@ function mapClerkUser(user: Awaited<ReturnType<Awaited<ReturnType<typeof clerkCl
   }
 }
 
-const ADMIN_BUYER_ROLE = 'admin_buyer'
+const ADMIN_ROLE = 'admin'
 
 export async function getBuyerAdmins(params?: Record<string, string>) {
   const client = await clerkClient()
@@ -28,9 +28,7 @@ export async function getBuyerAdmins(params?: Record<string, string>) {
   const { data: allUsers } = await client.users.getUserList({ limit: clerkLimit })
 
   let filtered = allUsers.filter((u) =>
-    (u.publicMetadata as Record<string, unknown>)?.roles &&
-    Array.isArray((u.publicMetadata as Record<string, unknown>).roles) &&
-    ((u.publicMetadata as Record<string, unknown>).roles as string[]).includes(ADMIN_BUYER_ROLE)
+    (u.publicMetadata as Record<string, unknown>)?.role === ADMIN_ROLE
   )
 
   if (isBlocked === 'true') {
@@ -77,7 +75,7 @@ export async function createBuyerAdmin(data: CreateAdminBuyerData) {
 
     await client.users.updateUserMetadata(user.id, {
       publicMetadata: {
-        roles: [ADMIN_BUYER_ROLE],
+        role: ADMIN_ROLE,
         ...(data.telefono ? { telefono: data.telefono } : {}),
       },
     })
@@ -100,16 +98,15 @@ export async function convertBuyerToAdmin(buyerUserId: string) {
     const user = await client.users.getUser(buyerUserId)
 
     const currentMeta = (user.publicMetadata as Record<string, unknown>) ?? {}
-    const currentRoles = (Array.isArray(currentMeta.roles) ? currentMeta.roles : []) as string[]
 
-    if (currentRoles.includes(ADMIN_BUYER_ROLE)) {
-      throw new Error('El usuario ya tiene el rol admin_buyer')
+    if (currentMeta.role === ADMIN_ROLE) {
+      throw new Error('El usuario ya tiene rol admin')
     }
 
     const updated = await client.users.updateUserMetadata(buyerUserId, {
       publicMetadata: {
         ...currentMeta,
-        roles: [...currentRoles, ADMIN_BUYER_ROLE],
+        role: ADMIN_ROLE,
       },
     })
 
@@ -163,15 +160,10 @@ export async function removeBuyerAdminRole(clerkUserId: string) {
   const user = await client.users.getUser(clerkUserId)
 
   const currentMeta = (user.publicMetadata as Record<string, unknown>) ?? {}
-  const currentRoles = (Array.isArray(currentMeta.roles) ? currentMeta.roles : []) as string[]
-
-  const updatedRoles = currentRoles.filter((r) => r !== ADMIN_BUYER_ROLE)
+  const { role: _removed, ...rest } = currentMeta
 
   await client.users.updateUserMetadata(clerkUserId, {
-    publicMetadata: {
-      ...currentMeta,
-      roles: updatedRoles,
-    },
+    publicMetadata: rest,
   })
 
   revalidatePath('/dashboard/buyer-admins')
