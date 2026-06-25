@@ -43,7 +43,7 @@ export default function ConfirmDialog({
           type="button"
           onClick={onClose}
           disabled={loading}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
+          className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-4 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-50 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400 dark:hover:bg-white/10"
         >
           Cancelar
         </button>
@@ -51,7 +51,7 @@ export default function ConfirmDialog({
           type="button"
           onClick={onConfirm}
           disabled={loading}
-          className={`rounded-lg px-4 py-2 text-sm text-white disabled:opacity-50 ${
+          className={`rounded-lg px-4 py-2 text-sm text-white shadow-lg shadow-black/5 backdrop-blur-xl transition-colors disabled:opacity-50 ${
             variant === 'danger'
               ? 'bg-red-600 hover:bg-red-700'
               : 'bg-blue-600 hover:bg-blue-700'

@@ -3,245 +3,197 @@
 import { useState, useEffect, useCallback } from "react"
 import { getVendorOrders } from "@/lib/actions/vendor"
 import type { OrderItem } from "@/lib/types"
-import type { AppOrder, StatusDefinition } from "@/lib/adapters/types"
-import { ShoppingCart, User, DollarSign, Calendar, ChevronLeft, ChevronRight, Search, X } from "lucide-react"
-import VendorOrdersSkeleton from "@/components/ui/loading/VendorOrdersSkeleton"
+import { ShoppingCart, ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react"
 import OrderDetailModal from "@/components/orders/OrderDetailModal"
-import { useToast } from "@/components/ui/ToastProvider"
 
 type Props = {
   vendorId: string
   vendorName: string
 }
 
-const SELLER_STATUSES: StatusDefinition[] = [
-  { value: 'PAID', label: 'Pagada', color: 'emerald' },
-  { value: 'READY', label: 'Lista', color: 'amber' },
-]
-
-function toAppOrder(o: OrderItem, vendorName: string): AppOrder {
-  return {
-    id: o.id,
-    externalId: o.externalId,
-    source: 'seller',
-    status: o.status,
-    total: o.total,
-    buyerName: o.buyerName,
-    vendorName,
-    address: o.address,
-    createdAt: o.createdAt,
-    items: o.items.map((i) => ({
-      id: i.id,
-      productName: i.productName,
-      productPrice: i.productPrice,
-      quantity: i.quantity,
-      image: i.product?.image,
-    })),
-  }
-}
-
-function getValidSellerTransitions(status: string): StatusDefinition[] {
-  if (status === 'PAID') return SELLER_STATUSES.filter((s) => s.value === 'READY')
-  if (status === 'READY') return SELLER_STATUSES.filter((s) => s.value === 'PAID')
-  return []
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  PAID: "Pagada",
-  READY: "Lista",
-}
+const PAGE_SIZE = 10
 
 export default function VendorOrdersBox({ vendorId, vendorName }: Props) {
-  const [items, setItems] = useState<OrderItem[]>([])
+  const [orders, setOrders] = useState<OrderItem[]>([])
+  const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
-  const [pageCount, setPageCount] = useState(1)
   const [loading, setLoading] = useState(true)
-  const limit = 5
+  const [search, setSearch] = useState("")
+  const [dateFrom, setDateFrom] = useState("")
+  const [dateTo, setDateTo] = useState("")
+  const [selected, setSelected] = useState<OrderItem | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
 
-  const [q, setQ] = useState("")
-  const [from, setFrom] = useState("")
-  const [to, setTo] = useState("")
-  const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null)
-  const { showToast } = useToast()
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  const buildParams = useCallback((p: number) => {
-    const params: Record<string, string> = { page: String(p), limit: String(limit) }
-    if (q) params.q = q
-    if (from) params.from = from
-    if (to) params.to = to
-    return params
-  }, [q, from, to])
-
-  const fetch = useCallback(async (p: number) => {
+  const load = useCallback(async (p: number, s?: string, df?: string, dt?: string) => {
     setLoading(true)
     try {
-      const res = await getVendorOrders(vendorId, buildParams(p))
-      setItems(res.items ?? [])
-      setPageCount(res.pageCount ?? 1)
-      setPage(p)
+      const params: Record<string, string> = { page: String(p), pageSize: String(PAGE_SIZE) }
+      if (s) params.search = s
+      if (df) params.dateFrom = df
+      if (dt) params.dateTo = dt
+      const res = await getVendorOrders(vendorId, params)
+      setOrders(res.items)
+      setTotal(res.total)
     } catch {
-      setItems([])
+      setOrders([])
+      setTotal(0)
     } finally {
       setLoading(false)
     }
-  }, [vendorId, buildParams])
+  }, [vendorId])
 
-  useEffect(() => { fetch(1) }, [fetch])
+  useEffect(() => {
+    load(page, search, dateFrom, dateTo)
+  }, [page, load])
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    fetch(1)
+  function handleSearch() {
+    setPage(1)
+    load(1, search, dateFrom, dateTo)
   }
 
-  function clearFilters() {
-    setQ("")
-    setFrom("")
-    setTo("")
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter") handleSearch()
   }
 
-  function handleStatusChange(orderId: string, newStatus: string) {
-    setItems((prev) => prev.map((o) => o.id === orderId ? { ...o, status: newStatus } : o))
-    showToast('success', `Pedido actualizado a ${STATUS_LABELS[newStatus] ?? newStatus}`)
-    setSelectedOrder(null)
+  function handleRowClick(order: OrderItem) {
+    setSelected(order)
+    setDetailOpen(true)
   }
-
-  const hasFilters = q || from || to
-  const selectedAppOrder = selectedOrder ? toAppOrder(selectedOrder, vendorName) : null
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
-        <div className="flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5 text-blue-600" />
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100">Pedidos</h2>
-        </div>
-        {pageCount > 1 && (
-          <div className="flex items-center gap-1 text-xs text-slate-500">
-            <button
-              type="button"
-              disabled={page <= 1 || loading}
-              onClick={() => fetch(page - 1)}
-              className="rounded p-1 hover:bg-slate-100 disabled:opacity-30 dark:hover:bg-slate-700"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span>{page} / {pageCount}</span>
-            <button
-              type="button"
-              disabled={page >= pageCount || loading}
-              onClick={() => fetch(page + 1)}
-              className="rounded p-1 hover:bg-slate-100 disabled:opacity-30 dark:hover:bg-slate-700"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        )}
+    <div className="mt-6 rounded-xl border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
+      <div className="flex items-center gap-2 border-b border-white/20 px-6 py-4 dark:border-slate-700/30">
+        <ShoppingCart className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Pedidos</h2>
       </div>
 
-      <form onSubmit={handleSearch} className="flex flex-wrap items-end gap-2 border-b border-slate-100 px-5 py-3 dark:border-slate-700">
+      <div className="flex flex-wrap items-center gap-2 px-6 py-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            name="q"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar por ID, comprador o producto..."
-            className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-500"
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Buscar por ID o comprador..."
+            className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100 dark:placeholder-slate-500"
           />
         </div>
-        <div>
-          <label className="mb-1 block text-xs text-slate-500 dark:text-slate-400">Desde</label>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-slate-500 dark:text-slate-400">Hasta</label>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-          />
-        </div>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+        />
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+        />
         <button
-          type="submit"
-          disabled={loading}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+          type="button"
+          onClick={handleSearch}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
         >
-          Filtrar
+          Buscar
         </button>
-        {hasFilters && (
-          <button
-            type="button"
-            onClick={() => { clearFilters(); fetch(1) }}
-            className="flex items-center gap-1 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </form>
-
-      <div className="divide-y divide-slate-100 dark:divide-slate-700">
-        {loading && <VendorOrdersSkeleton rows={limit} />}
-        {!loading && items.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-slate-400">Sin pedidos</p>
-        )}
-        {!loading && items.map((order) => (
-          <button
-            key={order.id}
-            type="button"
-            onClick={() => setSelectedOrder(order)}
-            className="w-full px-5 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                #{order.externalId}
-              </p>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  order.status === "PAID"
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-amber-100 text-amber-700"
-                }`}
-              >
-                {STATUS_LABELS[order.status] ?? order.status}
-              </span>
-            </div>
-            <div className="mt-1 flex items-center gap-3 text-xs text-slate-500">
-              <span className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                {order.buyerName || "Anónimo"}
-              </span>
-              <span className="flex items-center gap-1">
-                <DollarSign className="h-3 w-3" />
-                {order.total.toFixed(2)}
-              </span>
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {new Date(order.createdAt).toLocaleDateString("es-AR")} {new Date(order.createdAt).toLocaleTimeString("es-AR", { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            </div>
-            {order.items.length > 0 && (
-              <p className="mt-1 text-xs text-slate-400">
-                {order.items.length} producto{order.items.length !== 1 ? "s" : ""}
-              </p>
-            )}
-          </button>
-        ))}
       </div>
 
-      {selectedAppOrder && (
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="px-6 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+          No se encontraron pedidos.
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/20 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:border-slate-700/30 dark:text-slate-400">
+                  <th className="px-6 py-3">ID</th>
+                  <th className="px-6 py-3">Comprador</th>
+                  <th className="px-6 py-3">Total</th>
+                  <th className="px-6 py-3">Estado</th>
+                  <th className="px-6 py-3">Fecha</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10 dark:divide-slate-700/20">
+                {orders.map((o) => (
+                  <tr
+                    key={o.id}
+                    className="cursor-pointer transition-colors hover:bg-white/20 dark:hover:bg-white/5"
+                    onClick={() => handleRowClick(o)}
+                  >
+                    <td className="max-w-[100px] truncate px-6 py-3 font-mono text-xs text-slate-600 dark:text-slate-400">
+                      {o.id.slice(0, 8)}...
+                    </td>
+                    <td className="px-6 py-3 font-medium text-slate-900 dark:text-slate-100">
+                      {o.buyerName}
+                    </td>
+                    <td className="px-6 py-3 text-slate-700 dark:text-slate-300">
+                      ${Number(o.total).toLocaleString("es-AR")}
+                    </td>
+                    <td className="px-6 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                          o.status === "PAID"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : o.status === "READY"
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                        }`}
+                      >
+                        {o.status === "PAID" ? "Pagada" : o.status === "READY" ? "Lista" : o.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3 text-xs text-slate-500">
+                      {new Date(o.createdAt).toLocaleDateString("es-AR")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex items-center justify-between border-t border-white/20 px-6 py-3 dark:border-slate-700/30">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Pág. {page} de {pageCount} ({total} ped.)
+            </span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 p-1.5 text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                disabled={page >= pageCount}
+                onClick={() => setPage((p) => p + 1)}
+                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 p-1.5 text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {selected && (
         <OrderDetailModal
-          order={selectedAppOrder}
-          open={!!selectedAppOrder}
-          onClose={() => setSelectedOrder(null)}
-          onStatusChange={handleStatusChange}
-          statuses={SELLER_STATUSES}
-          validTransitions={getValidSellerTransitions(selectedAppOrder.status)}
+          order={selected}
+          vendorName={vendorName}
+          isOpen={detailOpen}
+          onClose={() => { setDetailOpen(false); setSelected(null) }}
+          onStatusChange={() => { load(page) }}
         />
       )}
     </div>

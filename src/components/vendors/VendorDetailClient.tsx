@@ -83,8 +83,8 @@ export default function VendorDetailClient({ vendor: initial }: Props) {
         Volver a vendedores
       </Link>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-slate-700">
+      <div className="rounded-xl border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 shadow-lg shadow-black/5 backdrop-blur-xl dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40">
+        <div className="flex items-center justify-between border-b border-white/20 px-6 py-5 dark:border-slate-700/30">
           <div className="flex items-center gap-3">
             {vendor.image ? (
               <img
@@ -114,7 +114,7 @@ export default function VendorDetailClient({ vendor: initial }: Props) {
             <button
               type="button"
               onClick={handleToggle}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700"
+              className="flex items-center gap-1.5 rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400 dark:hover:bg-white/10"
             >
               <Power className="h-4 w-4" />
               {vendor.isActive ? "Desactivar" : "Activar"}
@@ -122,7 +122,7 @@ export default function VendorDetailClient({ vendor: initial }: Props) {
             <button
               type="button"
               onClick={() => setEditOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
             >
               <Edit3 className="h-4 w-4" />
               Editar
@@ -130,7 +130,7 @@ export default function VendorDetailClient({ vendor: initial }: Props) {
             <button
               type="button"
               onClick={() => setDeleteOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg border border-red-300 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+              className="flex items-center gap-1.5 rounded-lg border border-red-300/50 px-3 py-2 text-sm text-red-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-red-50/50 dark:border-red-800/40 dark:text-red-400 dark:hover:bg-red-900/20"
             >
               <Trash2 className="h-4 w-4" />
               Eliminar
@@ -192,7 +192,7 @@ export default function VendorDetailClient({ vendor: initial }: Props) {
               </div>
             </div>
             {vendor.description && (
-              <div className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700">
+              <div className="mt-6 border-t border-white/20 pt-4 dark:border-slate-700/30">
                 <p className="text-sm text-slate-500">Descripción:</p>
                 <p className="mt-1 text-sm text-slate-900 dark:text-slate-100">{vendor.description}</p>
               </div>

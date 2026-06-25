@@ -31,7 +31,9 @@ export async function getMergedOrders(params: {
   }
 
   const results = await Promise.allSettled(
-    filtered.map((app) => app.getOrders(fetchParams).then((r) => ({ app: app.source, ...r })))
+    filtered.map((app) => app.getOrders(fetchParams).then((r) => ({ app: app.source, ...r })).catch((e: unknown) => {
+      throw new Error(`[${app.name}] ${(e as Error).message}`)
+    }))
   )
 
   const allItems: AppOrder[] = []
