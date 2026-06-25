@@ -25,7 +25,6 @@ export const mainNav: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Vendedores", href: "/dashboard/vendors", icon: Store },
   { label: "Productos", href: "/dashboard/products", icon: Package },
-  { label: "Pedidos", href: "/dashboard/orders", icon: ShoppingCart },
   { label: "Admin Seller", href: "/dashboard/seller-admins", icon: Shield },
 ];
 
