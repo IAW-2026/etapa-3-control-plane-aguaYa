@@ -6,6 +6,15 @@ import type { Buyer, BuyerAddress, BuyerOrder, Favorite, CreateBuyerData, Create
 
 /* ───── Buyers ───── */
 
+export async function getBuyersCount() {
+  try {
+    const res = await buyerApi.get('/api/buyers', { limit: '1' }) as { buyers: unknown[]; total?: number }
+    return res.total ?? res.buyers?.length ?? 0
+  } catch {
+    return null
+  }
+}
+
 export async function getBuyers(params?: Record<string, string>) {
   const res = await buyerApi.get('/api/buyers', params) as { buyers: Buyer[] }
   return res.buyers
