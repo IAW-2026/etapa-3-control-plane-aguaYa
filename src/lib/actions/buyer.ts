@@ -73,7 +73,24 @@ export async function deleteBuyerOrder(orderId: string, buyerId: string) {
 export async function createBuyerOrder(data: CreateBuyerOrderData) {
   const res = await buyerApi.post('/api/orders', data) as { order: BuyerOrder }
   revalidatePath(`/dashboard/buyers/${data.buyer_id}`)
+  revalidatePath('/dashboard/buyer-orders')
   return res.order
+}
+
+export async function getAllBuyerOrders(params?: Record<string, string>) {
+  const res = await buyerApi.get('/api/orders', params) as { orders: BuyerOrder[] }
+  return res.orders
+}
+
+export async function updateBuyerOrderStatus(orderId: string, orderStatus: string, status_reason?: string) {
+  const res = await buyerApi.patch(`/api/orders/${orderId}`, { orderStatus, ...(status_reason ? { status_reason } : {}) }) as { ok: boolean }
+  revalidatePath('/dashboard/buyer-orders')
+  return res
+}
+
+export async function deleteBuyerOrderGlobal(orderId: string) {
+  await buyerApi.delete(`/api/orders/${orderId}`)
+  revalidatePath('/dashboard/buyer-orders')
 }
 
 /* ───── Favorites ───── */
