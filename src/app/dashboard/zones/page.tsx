@@ -1,6 +1,9 @@
-import { getZones } from "@/lib/actions/delivery"
+import { getZones, deleteZone } from "@/lib/actions/delivery"
 import type { Zone, ListResponse } from "@/lib/types"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import Link from "next/link"
+import CreateZoneWrapper from "@/components/delivery/CreateZoneWrapper"
+import DeleteButton from "@/components/ui/DeleteButton"
 
 export const dynamic = "force-dynamic"
 
@@ -29,6 +32,7 @@ export default async function ZonesPage({
     <div>
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Zonas</h1>
+        <CreateZoneWrapper />
       </div>
 
       {error && (
@@ -57,22 +61,37 @@ export default async function ZonesPage({
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Nombre</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Choferes</th>
                 <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Empresas vinculadas</th>
+                <th className="px-6 py-4 font-medium text-slate-500 dark:text-slate-400">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {(!data || data.items.length === 0) && !error && (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={4} className="px-6 py-12 text-center text-slate-400">
                     No hay zonas registradas
                   </td>
                 </tr>
               )}
               {data?.items.map((zone) => (
                 <tr key={zone.idZona} className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50">
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">{zone.nombre}</td>
-                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">{zone.choferes}</td>
+                  <td className="px-6 py-4 font-medium">
+                    <Link href={`/dashboard/zones/${zone.idZona}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                      {zone.nombre}
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                    {typeof zone.choferes === "number" ? zone.choferes : zone.choferes.length}
+                  </td>
                   <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
                     {zone.empresas.length > 0 ? zone.empresas.join(", ") : "—"}
+                  </td>
+                  <td className="px-6 py-4">
+                    <DeleteButton
+                      id={zone.idZona}
+                      label={zone.nombre}
+                      message={`¿Estás seguro de eliminar la zona "${zone.nombre}"? Se desasignarán los choferes y se eliminarán los vínculos con empresas. Esta acción no se puede deshacer.`}
+                      deleteAction={deleteZone}
+                    />
                   </td>
                 </tr>
               ))}

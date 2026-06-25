@@ -70,11 +70,15 @@ export type Driver = {
   telefono?: string
   estado: string
   disponible: boolean
-  zona?: { idZona: number; nombre: string }
-  vehiculo?: { idVehiculo: number; patente: string; tipo: string }
+  zona?: { idZona: number; nombre: string } | null
+  vehiculo?: { idVehiculo: number; patente: string; tipo: string } | null
   pedidosAsignados: number
   idVendedor: string
-  nombreEmpresa?: string
+  nombreEmpresa?: string | null
+  clerkUserId?: string
+  idVehiculo?: number | null
+  idZona?: number | null
+  temporaryPassword?: string
 }
 
 export type Vehicle = {
@@ -83,13 +87,102 @@ export type Vehicle = {
   tipo: string
   capacidadBidones: number
   estado: string
+  motivoPausa?: string | null
   idVendedor: string
-  choferAsignado?: string
+  choferAsignado?: string | { idChofer: number; nombre: string } | null
 }
 
 export type Zone = {
   idZona: number
   nombre: string
-  choferes: number
+  choferes: number | Array<{ idChofer: number; nombre: string }>
   empresas: string[]
+}
+
+/* Create/Update payload types */
+export type CreateDriverData = {
+  email: string
+  nombre: string
+  telefono?: string
+  idVendedor?: string
+  idZona?: number
+  idVehiculo?: number
+}
+
+export type UpdateDriverData = {
+  nombre?: string
+  telefono?: string
+  idZona?: number
+  idVehiculo?: number
+}
+
+export type CreateVehicleData = {
+  patente: string
+  tipo: string
+  capacidadBidones: number
+  idVendedor: string
+}
+
+export type UpdateVehicleData = {
+  patente?: string
+  tipo?: string
+  capacidadBidones?: number
+}
+
+export type CreateZoneData = {
+  nombre: string
+}
+
+export type UpdateZoneData = {
+  nombre: string
+}
+
+export type ToggleVehicleData = {
+  motivoPausa?: string
+}
+
+export type ToggleResponse = {
+  ok: boolean
+  nuevoEstado: string
+}
+
+/* Logistics Admin */
+export type LogisticsAdmin = {
+  clerkUserId: string
+  nombre: string
+  telefono?: string
+  idVendedor: string
+  nombreEmpresa: string
+  isBlocked: boolean
+  createdAt: string
+}
+
+export type CreateLogisticsAdminData = {
+  email: string
+  idVendedor: string
+}
+
+export type UpdateLogisticsAdminData = {
+  nombre?: string
+  nombreEmpresa?: string
+}
+
+/* Admin Delivery (global, sin empresa) */
+export type AdminDelivery = {
+  clerkUserId: string
+  nombre: string | null
+  telefono?: string | null
+  isBlocked: boolean
+  createdAt: string
+}
+
+export type CreateAdminDeliveryData = {
+  email: string
+  nombre: string
+  telefono?: string
+}
+
+export type UpdateAdminDeliveryData = {
+  nombre?: string
+  telefono?: string
 }
