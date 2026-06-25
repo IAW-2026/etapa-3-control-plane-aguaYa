@@ -187,6 +187,28 @@ export type UpdateAdminDeliveryData = {
   telefono?: string;
 };
 
+/* Admin Payment (gestionado directo por Clerk desde Control Plane) */
+export type PaymentAdmin = {
+  clerkUserId: string
+  email: string
+  nombre: string | null
+  telefono: string | null
+  isBlocked: boolean
+  createdAt: string
+}
+
+export type CreatePaymentAdminData = {
+  email: string
+  password: string
+  nombre: string
+  telefono?: string
+}
+
+export type UpdatePaymentAdminData = {
+  nombre?: string
+  telefono?: string
+}
+
 /* Admin Seller (gestionado directo por Clerk desde Control Plane) */
 export type SellerAdmin = {
   clerkUserId: string;

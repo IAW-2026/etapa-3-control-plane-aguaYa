@@ -7,6 +7,9 @@ import {
   Car,
   MapPin,
   Shield,
+  CreditCard,
+  Users,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 
@@ -38,11 +41,23 @@ export type NavSection = {
 };
 
 export const paymentNav: NavItem[] = [
-  { label: "Pagos", href: "/dashboard/pagos", icon: CreditCard },
+  { label: "Transacciones", href: "/dashboard/pagos", icon: CreditCard },
+];
+
+export const adminPaymentsNav: NavItem[] = [
+  { label: "Admin Pagos", href: "/dashboard/payment-admins", icon: Shield },
+];
+
+export const usuariosPaymentsNav: NavItem[] = [
+  { label: "Usuarios Pagos", href: "/dashboard/payment-users", icon: Users },
+];
+
+export const facturasNav: NavItem[] = [
+  { label: "Facturas", href: "/dashboard/facturas", icon: FileText },
 ];
 
 export const navSections: NavSection[] = [
   { title: "Seller App", items: mainNav.slice(1) },
   { title: "Delivery App", items: deliveryNav },
-  { title: "Payment App", items: paymentNav },
+  { title: "Payment App", items: [...paymentNav, ...facturasNav, ...usuariosPaymentsNav, ...adminPaymentsNav] },
 ];

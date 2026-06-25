@@ -21,6 +21,45 @@ export type Invoice = {
   issuedAt: string
 }
 
+export type PaymentUserStatus = 'ACTIVE' | 'SUSPENDED' | 'DELETED'
+
+export type PaymentUser = {
+  id: string
+  clerkId: string
+  buyerId: string
+  buyerName: string
+  sellerId: string
+  sellerName: string
+  status: PaymentUserStatus
+  createdAt: string
+}
+
+export type PaymentUserListResponse = {
+  items: PaymentUser[]
+  total: number
+  page: number
+  pageCount: number
+}
+
+export type InvoicePaymentRef = {
+  id: string
+  orderId: string
+  buyerName: string
+  sellerName: string
+  status: PaymentStatus
+}
+
+export type InvoiceWithPayment = Invoice & {
+  payment: InvoicePaymentRef
+}
+
+export type InvoiceListResponse = {
+  items: InvoiceWithPayment[]
+  total: number
+  page: number
+  pageCount: number
+}
+
 export type Payment = {
   id: string
   orderId: string
@@ -84,4 +123,13 @@ export const paymentApi = {
 
   updateStatus: (id: string, status: string): Promise<void> =>
     request(`/api/admin/payments/${id}/status`, { method: 'PATCH', body: { status } }),
+
+  getUsers: (params: Record<string, string>): Promise<PaymentUserListResponse> =>
+    request('/api/admin/users', { params }),
+
+  updateUserStatus: (clerkId: string, status: string): Promise<{ ok: boolean; clerkId: string; status: string }> =>
+    request(`/api/admin/users/${clerkId}/status`, { method: 'PATCH', body: { status } }),
+
+  getInvoices: (params: Record<string, string>): Promise<InvoiceListResponse> =>
+    request('/api/admin/invoices', { params }),
 }
