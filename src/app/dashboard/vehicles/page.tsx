@@ -1,6 +1,6 @@
 import { getVehicles, getLogisticsAdminsSimple, deleteVehicle } from "@/lib/actions/delivery"
 import type { Vehicle, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Pencil } from "lucide-react"
 import Link from "next/link"
 import CreateVehicleWrapper from "@/components/delivery/CreateVehicleWrapper"
 import DeleteButton from "@/components/ui/DeleteButton"
@@ -153,14 +153,23 @@ export default async function VehiclesPage({
                        ? vehicle.choferAsignado
                        : "—"}
                    </td>
-                   <td className="px-6 py-4">
-                     <DeleteButton
-                       id={vehicle.idVehiculo}
-                       label={vehicle.patente}
-                       message={`¿Estás seguro de eliminar el vehículo "${vehicle.patente}"? Se desasignarán los choferes asociados. Esta acción no se puede deshacer.`}
-                       deleteAction={deleteVehicle}
-                     />
-                   </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/dashboard/vehicles/${vehicle.idVehiculo}`}
+                          className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          title={`Editar ${vehicle.patente}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                        <DeleteButton
+                          id={vehicle.idVehiculo}
+                          label={vehicle.patente}
+                          message={`¿Estás seguro de eliminar el vehículo "${vehicle.patente}"? Se desasignarán los choferes asociados. Esta acción no se puede deshacer.`}
+                          deleteAction={deleteVehicle}
+                        />
+                      </div>
+                    </td>
                  </tr>
               ))}
             </tbody>

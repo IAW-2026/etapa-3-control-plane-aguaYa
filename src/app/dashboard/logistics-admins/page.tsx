@@ -1,6 +1,6 @@
 import { getLogisticsAdmins, deleteLogisticsAdmin } from "@/lib/actions/delivery"
 import type { LogisticsAdmin, ListResponse } from "@/lib/types"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Pencil } from "lucide-react"
 import Link from "next/link"
 import DeleteButton from "@/components/ui/DeleteButton"
 import CreateLogisticsAdminWrapper from "@/components/delivery/CreateLogisticsAdminWrapper"
@@ -120,7 +120,7 @@ export default async function LogisticsAdminsPage({
                 <tr key={admin.clerkUserId} className="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50">
                   <td className="px-6 py-4 font-medium">
                     <Link href={`/dashboard/logistics-admins/${admin.clerkUserId}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                      {admin.nombreEmpresa}
+                      {admin.nombre} — {admin.nombreEmpresa}
                     </Link>
                   </td>
                   <td className="px-6 py-4 font-mono text-slate-500 dark:text-slate-400">{admin.idVendedor}</td>
@@ -134,12 +134,21 @@ export default async function LogisticsAdminsPage({
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <DeleteButton
-                      id={admin.clerkUserId}
-                      label={admin.nombre}
-                      message={`¿Estás seguro de eliminar a "${admin.nombre}"? Se le quitarán los permisos de administrador.`}
-                      deleteAction={deleteLogisticsAdmin}
-                    />
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/dashboard/logistics-admins/${admin.clerkUserId}`}
+                        className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        title={`Editar ${admin.nombre}`}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      <DeleteButton
+                        id={admin.clerkUserId}
+                        label={admin.nombre}
+                        message={`¿Estás seguro de eliminar a "${admin.nombre}"? Se le quitarán los permisos de administrador.`}
+                        deleteAction={deleteLogisticsAdmin}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
