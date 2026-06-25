@@ -6,6 +6,7 @@ import {
   Truck,
   Car,
   MapPin,
+  CreditCard,
   type LucideIcon,
 } from "lucide-react"
 
@@ -33,7 +34,12 @@ export type NavSection = {
   items: NavItem[]
 }
 
+export const paymentNav: NavItem[] = [
+  { label: "Pagos", href: "/dashboard/pagos", icon: CreditCard },
+]
+
 export const navSections: NavSection[] = [
   { title: "Seller App", items: mainNav.slice(1) },
   { title: "Delivery App", items: deliveryNav },
+  { title: "Payment App", items: paymentNav },
 ]
