@@ -39,7 +39,12 @@ export const deliveryNav: NavItem[] = [
 export const feedbackNav: NavItem[] = [
   { label: "Reseñas", href: "/dashboard/feedback/resenas", icon: MessageSquareQuote },
   { label: "Valoraciones", href: "/dashboard/feedback/valoraciones", icon: Star },
-];
+]
+export const buyerNav: NavItem[] = [
+  { label: "Compradores", href: "/dashboard/buyers", icon: Users },
+  { label: "Pedidos", href: "/dashboard/buyer-orders", icon: ShoppingCart },
+]
+
 export type NavSection = {
   title: string;
   items: NavItem[];
@@ -64,6 +69,7 @@ export const facturasNav: NavItem[] = [
 export const navSections: NavSection[] = [
   { title: "Seller App", items: mainNav.slice(1) },
   { title: "Delivery App", items: deliveryNav },
+  { title: "Buyer App", items: buyerNav },
   { title: "Feedback App", items: feedbackNav },
   { title: "Payment App", items: [...paymentNav, ...facturasNav, ...usuariosPaymentsNav, ...adminPaymentsNav] },
 ];
