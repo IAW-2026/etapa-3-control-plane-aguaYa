@@ -8,7 +8,7 @@ import { getVendorsSimple } from "@/lib/actions/vendor"
 import { useToast } from "@/components/ui/ToastProvider"
 import Modal from "@/components/ui/Modal"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
-import CreateBuyerOrderModal from "./CreateBuyerOrderModal"
+
 import { Loader2, MapPin, ShoppingCart, Heart, Info, Plus, Pencil, Trash2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -41,7 +41,6 @@ export default function BuyerDetailClient({ buyerId }: Props) {
 
   const [confirmDelete, setConfirmDelete] = useState<{ type: "buyer" | "order" | "address"; id: string } | null>(null)
   const [loadErrors, setLoadErrors] = useState<string[]>([])
-  const [showCreateOrder, setShowCreateOrder] = useState(false)
 
   const [editOpen, setEditOpen] = useState(false)
   const [editName, setEditName] = useState("")
@@ -447,18 +446,10 @@ export default function BuyerDetailClient({ buyerId }: Props) {
 
         {tab === "orders" && (
           <div className="space-y-4 text-sm">
-            <div className="flex items-center justify-between">
+            <div>
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 {orders.length} orden{orders.length !== 1 ? "es" : ""}
               </p>
-              <button
-                type="button"
-                onClick={() => setShowCreateOrder(true)}
-                className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Nueva Orden
-              </button>
             </div>
             {orders.length === 0 && (
               <p className="py-6 text-center text-slate-400">Sin órdenes registradas</p>
@@ -598,16 +589,6 @@ export default function BuyerDetailClient({ buyerId }: Props) {
           </div>
         )}
       </div>
-
-      <CreateBuyerOrderModal
-        isOpen={showCreateOrder}
-        onClose={() => setShowCreateOrder(false)}
-        onSuccess={() => { setShowCreateOrder(false); load() }}
-        buyerId={buyerId}
-        buyerUserId={buyer.user_id}
-        vendors={vendors}
-        addresses={addresses}
-      />
 
       {editOpen && (
         <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Editar Comprador">
