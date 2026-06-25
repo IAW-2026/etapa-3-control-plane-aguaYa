@@ -3,12 +3,13 @@
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import type { Buyer, BuyerAddress, BuyerOrder, Favorite } from "@/lib/types"
-import { getBuyer, getBuyerAddresses, getBuyerOrders, getBuyerFavorites, toggleBuyer, deleteBuyer, createAddress, deleteAddress, deleteBuyerOrder, addFavorite, removeFavorite } from "@/lib/actions/buyer"
+import { getBuyer, getBuyerAddresses, getBuyerOrders, getBuyerFavorites, toggleBuyer, updateBuyer, deleteBuyer, createAddress, deleteAddress, deleteBuyerOrder, addFavorite, removeFavorite } from "@/lib/actions/buyer"
 import { getVendorsSimple } from "@/lib/actions/vendor"
 import { useToast } from "@/components/ui/ToastProvider"
+import Modal from "@/components/ui/Modal"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
 import CreateBuyerOrderModal from "./CreateBuyerOrderModal"
-import { Loader2, MapPin, ShoppingCart, Heart, Info, Plus, Trash2, ArrowLeft } from "lucide-react"
+import { Loader2, MapPin, ShoppingCart, Heart, Info, Plus, Pencil, Trash2, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 type Props = {
@@ -41,6 +42,11 @@ export default function BuyerDetailClient({ buyerId }: Props) {
   const [confirmDelete, setConfirmDelete] = useState<{ type: "buyer" | "order" | "address"; id: string } | null>(null)
   const [loadErrors, setLoadErrors] = useState<string[]>([])
   const [showCreateOrder, setShowCreateOrder] = useState(false)
+
+  const [editOpen, setEditOpen] = useState(false)
+  const [editName, setEditName] = useState("")
+  const [editMail, setEditMail] = useState("")
+  const [editPhone, setEditPhone] = useState("")
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -116,6 +122,26 @@ export default function BuyerDetailClient({ buyerId }: Props) {
       load()
     } catch {
       showToast("error", "Error al cambiar estado")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleEdit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!buyer) return
+    setBusy(true)
+    try {
+      const updated = await updateBuyer(buyer.buyer_id, {
+        name: editName || undefined,
+        mail: editMail || undefined,
+        phone_numbers: editPhone || undefined,
+      })
+      setBuyer(updated)
+      setEditOpen(false)
+      showToast("success", "Comprador actualizado")
+    } catch {
+      showToast("error", "Error al actualizar comprador")
     } finally {
       setBusy(false)
     }
@@ -295,6 +321,20 @@ export default function BuyerDetailClient({ buyerId }: Props) {
               </div>
             </div>
             <div className="flex gap-2 border-t border-white/20 pt-4 dark:border-slate-700/30">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditName(buyer.name || "")
+                  setEditMail(buyer.mail || "")
+                  setEditPhone(buyer.phone_numbers || "")
+                  setEditOpen(true)
+                }}
+                disabled={busy}
+                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700 disabled:opacity-50"
+              >
+                <Pencil className="h-4 w-4" />
+                Editar
+              </button>
               <button
                 type="button"
                 onClick={handleToggle}
@@ -568,6 +608,58 @@ export default function BuyerDetailClient({ buyerId }: Props) {
         vendors={vendors}
         addresses={addresses}
       />
+
+      {editOpen && (
+        <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Editar Comprador">
+          <form onSubmit={handleEdit} className="space-y-4 text-sm">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Nombre</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Email</label>
+              <input
+                type="email"
+                value={editMail}
+                onChange={(e) => setEditMail(e.target.value)}
+                className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Teléfono</label>
+              <input
+                type="text"
+                value={editPhone}
+                onChange={(e) => setEditPhone(e.target.value)}
+                className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
+              />
+            </div>
+            <div className="flex justify-end gap-2 border-t border-white/20 pt-4 dark:border-slate-700/30">
+              <button
+                type="button"
+                onClick={() => setEditOpen(false)}
+                disabled={busy}
+                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-4 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-50 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={busy}
+                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700 disabled:opacity-50"
+              >
+                {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+                {busy ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
       <ConfirmDialog
         isOpen={confirmDelete !== null}
