@@ -3,11 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import type { AdminBuyer } from "@/lib/types"
-import { toggleBuyerAdmin, updateBuyerAdmin, removeBuyerAdminRole } from "@/lib/actions/buyer-admin"
+import { toggleBuyerAdmin, removeBuyerAdminRole } from "@/lib/actions/buyer-admin"
 import { useToast } from "@/components/ui/ToastProvider"
-import Modal from "@/components/ui/Modal"
 import ConfirmDialog from "@/components/ui/ConfirmDialog"
-import { ChevronLeft, Power, Pencil, UserX, Loader2 } from "lucide-react"
+import { ChevronLeft, Power, UserX, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function BuyerAdminDetailClient({ admin: initial }: { admin: AdminBuyer }) {
@@ -16,19 +15,8 @@ export default function BuyerAdminDetailClient({ admin: initial }: { admin: Admi
   const router = useRouter()
   const { showToast } = useToast()
 
-  const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
-
-  const [editNombre, setEditNombre] = useState("")
-  const [editTelefono, setEditTelefono] = useState("")
-
-  function openEdit() {
-    setEditNombre(admin.nombre ?? "")
-    setEditTelefono(admin.telefono ?? "")
-    setEditOpen(true)
-  }
 
   async function handleToggle() {
     setLoading(true)
@@ -40,24 +28,6 @@ export default function BuyerAdminDetailClient({ admin: initial }: { admin: Admi
       showToast("error", "Error al cambiar estado del admin buyer")
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    try {
-      const updated = await updateBuyerAdmin(admin.clerkUserId, {
-        nombre: editNombre || undefined,
-        telefono: editTelefono || undefined,
-      })
-      setAdmin(updated)
-      setEditOpen(false)
-      showToast("success", "Admin buyer actualizado")
-    } catch {
-      showToast("error", "Error al actualizar admin buyer")
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -113,14 +83,6 @@ export default function BuyerAdminDetailClient({ admin: initial }: { admin: Admi
             </button>
             <button
               type="button"
-              onClick={openEdit}
-              className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700"
-            >
-              <Pencil className="h-4 w-4" />
-              Editar
-            </button>
-            <button
-              type="button"
               onClick={() => setDeleteOpen(true)}
               className="flex items-center gap-1.5 rounded-lg border border-red-300/50 px-3 py-2 text-sm text-red-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-red-50/50 dark:border-red-800/40 dark:text-red-400 dark:hover:bg-red-900/20"
             >
@@ -163,49 +125,6 @@ export default function BuyerAdminDetailClient({ admin: initial }: { admin: Admi
           </div>
         </div>
       </div>
-
-      {editOpen && (
-        <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Editar Admin Buyer">
-          <form onSubmit={handleSave} className="space-y-4 text-sm">
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Nombre</label>
-              <input
-                type="text"
-                value={editNombre}
-                onChange={(e) => setEditNombre(e.target.value)}
-                className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Teléfono</label>
-              <input
-                type="text"
-                value={editTelefono}
-                onChange={(e) => setEditTelefono(e.target.value)}
-                className="w-full rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-3 py-2 text-slate-900 shadow-lg shadow-black/5 backdrop-blur-xl focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-100"
-              />
-            </div>
-            <div className="flex justify-end gap-2 border-t border-white/20 pt-4 dark:border-slate-700/30">
-              <button
-                type="button"
-                onClick={() => setEditOpen(false)}
-                disabled={saving}
-                className="rounded-lg border border-white/30 bg-gradient-to-br from-white/30 to-slate-100/30 px-4 py-2 text-sm text-slate-600 shadow-lg shadow-black/5 backdrop-blur-xl transition-colors hover:bg-white/40 disabled:opacity-50 dark:border-slate-700/40 dark:from-slate-900/40 dark:to-slate-800/40 dark:text-slate-400"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white shadow-lg shadow-black/5 transition-colors hover:bg-blue-700 disabled:opacity-50"
-              >
-                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {saving ? "Guardando..." : "Guardar cambios"}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
 
       <ConfirmDialog
         isOpen={deleteOpen}

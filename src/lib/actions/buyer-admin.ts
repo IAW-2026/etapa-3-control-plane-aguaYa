@@ -160,10 +160,12 @@ export async function removeBuyerAdminRole(clerkUserId: string) {
   const user = await client.users.getUser(clerkUserId)
 
   const currentMeta = (user.publicMetadata as Record<string, unknown>) ?? {}
-  const { role: _removed, ...rest } = currentMeta
 
   await client.users.updateUserMetadata(clerkUserId, {
-    publicMetadata: rest,
+    publicMetadata: {
+      ...currentMeta,
+      role: null,
+    },
   })
 
   revalidatePath('/dashboard/buyer-admins')

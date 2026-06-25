@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { getBuyerAdmins, removeBuyerAdminRole } from "@/lib/actions/buyer-admin"
+import { getBuyerAdmins } from "@/lib/actions/buyer-admin"
 import type { AdminBuyer, ListResponse } from "@/lib/types"
 import { Search, ChevronLeft, ChevronRight, Loader2, Shield } from "lucide-react"
 import Link from "next/link"
-import { Pencil, UserX } from "lucide-react"
+import { Pencil } from "lucide-react"
 import CreateBuyerAdminWrapper from "@/components/buyer/CreateBuyerAdminWrapper"
 
 const PAGE_SIZE = 10
@@ -58,11 +58,6 @@ export default function BuyerAdminsPage() {
     setActiveTab(tab)
     setPage(1)
     load(1, search, tab)
-  }
-
-  async function handleRemoveRole(id: string) {
-    await removeBuyerAdminRole(id)
-    setReloadKey((k) => k + 1)
   }
 
   return (
@@ -156,23 +151,13 @@ export default function BuyerAdminsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1">
-                        <Link
-                          href={`/dashboard/buyer-admins/${admin.clerkUserId}`}
-                          className="rounded-lg p-1.5 text-slate-500 hover:bg-white/40 dark:hover:bg-slate-700/30"
-                          title="Editar"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveRole(admin.clerkUserId)}
-                          className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          title={`Remove Admin ${admin.email}`}
-                        >
-                          <UserX className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <Link
+                        href={`/dashboard/buyer-admins/${admin.clerkUserId}`}
+                        className="rounded-lg p-1.5 text-slate-500 hover:bg-white/40 dark:hover:bg-slate-700/30"
+                        title="Editar"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
                     </td>
                   </tr>
                 ))}
