@@ -80,3 +80,19 @@ Se agregaron botones "Editar" (ícono Pencil) en las tablas de todas las seccion
 ## Patrón usado
 Cada botón Editar es un `<Link>` con ícono `Pencil` de lucide-react, ubicado a la izquierda del botón Eliminar, envuelto en un `<div className="flex items-center gap-1">`. El link apunta a la página de detalle del recurso (donde ya existe el formulario de edición).
 <!-- END:session-2026-06-25 -->
+
+<!-- BEGIN:session-2026-06-25b -->
+# Session: Zone ↔ Empresa (vinculación desde Control Plane)
+
+## Resumen
+Se actualizó el Control Plane para que las zonas puedan vincularse con empresas (vendedores). Esto requiere los endpoints actualizados en la Delivery App que aceptan `empresas?: string[]` en POST y PUT de zonas.
+
+## Archivos modificados
+- `src/lib/types.ts` — `CreateZoneData.empresas?: string[]`, `UpdateZoneData.empresas?: string[]`
+- `src/components/delivery/CreateZoneModal.tsx` — selector de empresas (checkboxes con vendors disponibles)
+- `src/components/delivery/ZoneDetailClient.tsx` — panel editable de empresas vinculadas (agregar/quitar + guardar)
+
+## Patrón
+- CreateZoneModal carga vendors via `getVendorsSimple()`, checkboxes tipo toggle, envía `{ nombre, empresas: string[] }`
+- ZoneDetailClient muestra badges editables con × para quitar, "+" para agregar del listado de vendors disponibles, y botón "Guardar empresas" que llama `updateZone({ nombre, empresas })`
+<!-- END:session-2026-06-25b -->

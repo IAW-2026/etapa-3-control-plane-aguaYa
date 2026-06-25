@@ -130,12 +130,14 @@ export type UpdateVehicleData = {
 };
 
 export type CreateZoneData = {
-  nombre: string;
-};
+  nombre: string
+  empresas?: string[]
+}
 
 export type UpdateZoneData = {
-  nombre: string;
-};
+  nombre: string
+  empresas?: string[]
+}
 
 export type ToggleVehicleData = {
   motivoPausa?: string;
