@@ -35,6 +35,17 @@ export async function toggleBuyer(buyerId: string) {
   return res.buyer
 }
 
+export async function updateBuyer(buyerId: string, data: { name?: string; mail?: string; phone_numbers?: string }) {
+  const body: Record<string, unknown> = {}
+  if (data.name !== undefined) body.name = data.name
+  if (data.mail !== undefined) body.mail = data.mail
+  if (data.phone_numbers !== undefined) body.phone_numbers = data.phone_numbers
+  const res = await buyerApi.patch(`/api/buyers/${buyerId}`, body) as { buyer: Buyer }
+  revalidatePath(`/dashboard/buyers/${buyerId}`)
+  revalidatePath('/dashboard/buyers')
+  return res.buyer
+}
+
 export async function deleteBuyer(buyerId: string) {
   await buyerApi.delete(`/api/buyers/${buyerId}`)
   revalidatePath('/dashboard/buyers')
