@@ -47,10 +47,14 @@ export default function ZoneDetailClient({ zone: initial }: Props) {
 
   useEffect(() => {
     if (!Array.isArray(zone.choferes) || zone.choferes.length === 0) return
+    const vMap = new Map(vendors.map((v) => [v.id, v.name]))
     Promise.all(
       zone.choferes.map((c) =>
         getDriver(c.idChofer)
-          .then((d) => ({ id: c.idChofer, empresa: d.nombreEmpresa ?? null }))
+          .then((d) => ({
+            id: c.idChofer,
+            empresa: d.nombreEmpresa ?? vMap.get(d.idVendedor) ?? null,
+          }))
           .catch(() => ({ id: c.idChofer, empresa: null }))
       )
     ).then((results) => {
@@ -58,7 +62,7 @@ export default function ZoneDetailClient({ zone: initial }: Props) {
       results.forEach((r) => { map[r.id] = r.empresa })
       setDriversEmpresa(map)
     })
-  }, [zone])
+  }, [zone, vendors])
 
   async function handleSave(data: Record<string, string>) {
     setSaving(true)
