@@ -25,7 +25,10 @@ El control plane se conecta con las siguientes apps del ecosistema mediante sus 
 | Payment | `PAYMENT_APP_URL` | `/api/admin/pagos`, `/api/admin/facturas` |
 
 Cada app se autentica mediante una API Key compartida enviada en el header `x-api-key` o `Authorization`.
-
+## Usuarios
+superadmin1+clerk_test@iaw.com
+superadmin2+clerk_test@iaw.com
+Contraseña: iawuser#
 ## Tecnologías
 
 - **Framework:** Next.js 16 (App Router)
