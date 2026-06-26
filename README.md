@@ -42,21 +42,7 @@ Contraseña: iawuser#
 
 - Node.js >= 20
 
-## Instalación y ejecución
-
-```bash
-# Instalar dependencias
-npm install
-
-# Crear archivo de variables de entorno
-cp .env.example .env.local
-# Editar .env.local con las URLs y API keys de cada app
-
-# Iniciar en modo desarrollo
-npm run dev
-```
-
-El servidor arranca en `http://localhost:3001`.
+## Link de deploy -> https://etapa-3-control-plane-agua-ya.vercel.app/
 
 
 
