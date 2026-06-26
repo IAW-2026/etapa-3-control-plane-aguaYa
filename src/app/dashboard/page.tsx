@@ -6,7 +6,10 @@ import { getSellerAdmins } from "@/lib/actions/seller-admin"
 import { getBuyersCount } from "@/lib/actions/buyer"
 import { getPayments } from "@/lib/actions/payments"
 import { getValoraciones, getResenas } from "@/lib/actions/feedback"
-import { Store, Package, Shield, Users, CreditCard, Star, MessageSquare, Truck, Loader2 } from "lucide-react"
+import { getDrivers, getLogisticsAdmins, getDeliveryAdmins } from "@/lib/actions/delivery"
+import { getBuyerAdmins } from "@/lib/actions/buyer-admin"
+import { getPaymentAdmins } from "@/lib/actions/payment-admin"
+import { Store, Package, Shield, Users, CreditCard, Star, MessageSquare, Truck, Loader2, Building2, ShieldCheck, UserCheck, Wallet } from "lucide-react"
 
 type KpiState = number | null | "loading"
 
@@ -18,6 +21,11 @@ export default function OverviewPage() {
   const [transactions, setTransactions] = useState<KpiState>("loading")
   const [ratings, setRatings] = useState<KpiState>("loading")
   const [reviews, setReviews] = useState<KpiState>("loading")
+  const [drivers, setDrivers] = useState<KpiState>("loading")
+  const [logisticsAdmins, setLogisticsAdmins] = useState<KpiState>("loading")
+  const [deliveryAdmins, setDeliveryAdmins] = useState<KpiState>("loading")
+  const [buyerAdmins, setBuyerAdmins] = useState<KpiState>("loading")
+  const [paymentAdmins, setPaymentAdmins] = useState<KpiState>("loading")
 
   useEffect(() => {
     async function load() {
@@ -29,6 +37,11 @@ export default function OverviewPage() {
         getPayments({ page: 1 }).then(r => r.total ?? 0).catch(() => null),
         getValoraciones({ limit: 1 }).then(r => r.total ?? 0).catch(() => null),
         getResenas({ limit: 1 }).then(r => r.total ?? 0).catch(() => null),
+        getDrivers({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
+        getLogisticsAdmins({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
+        getDeliveryAdmins({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
+        getBuyerAdmins({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
+        getPaymentAdmins({ limit: "1" }).then(r => r.total ?? 0).catch(() => null),
       ])
 
       const values = results.map(r => r.status === "fulfilled" ? r.value : null)
@@ -39,6 +52,11 @@ export default function OverviewPage() {
       setTransactions(values[4])
       setRatings(values[5])
       setReviews(values[6])
+      setDrivers(values[7])
+      setLogisticsAdmins(values[8])
+      setDeliveryAdmins(values[9])
+      setBuyerAdmins(values[10])
+      setPaymentAdmins(values[11])
     }
     load()
   }, [])
@@ -51,7 +69,11 @@ export default function OverviewPage() {
     { label: "Transacciones", value: transactions, icon: CreditCard, color: "bg-amber-500" },
     { label: "Valoraciones", value: ratings, icon: Star, color: "bg-pink-500" },
     { label: "Reseñas", value: reviews, icon: MessageSquare, color: "bg-teal-500" },
-    { label: "Choferes", value: null, icon: Truck, color: "bg-slate-400" },
+    { label: "Choferes", value: drivers, icon: Truck, color: "bg-violet-500" },
+    { label: "Admin Logístico", value: logisticsAdmins, icon: Building2, color: "bg-orange-500" },
+    { label: "Admin Delivery", value: deliveryAdmins, icon: ShieldCheck, color: "bg-cyan-500" },
+    { label: "Admin Buyer", value: buyerAdmins, icon: UserCheck, color: "bg-rose-500" },
+    { label: "Admin Payment", value: paymentAdmins, icon: Wallet, color: "bg-green-500" },
   ]
 
   return (
