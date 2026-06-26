@@ -10,7 +10,7 @@ Panel de administración centralizado del ecosistema **AguaYa**. Permite a un su
 | **Delivery App** | Choferes, Vehículos, Zonas, Logísticos, Admin Delivery |
 | **Buyer App** | Compradores, Pedidos, Admin Buyer |
 | **Feedback App** | Reseñas, Valoraciones |
-| **Payment App** | Transacciones, Facturas, Usuarios, Admin Pagos |
+| **Payment App** | Transacciones, Facturas, Usuarios de Pago, Admin Pagos |
 
 ## Apps Integradas
 
