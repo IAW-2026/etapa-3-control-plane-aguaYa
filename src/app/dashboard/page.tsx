@@ -70,7 +70,7 @@ export default function OverviewPage() {
     { label: "Valoraciones", value: ratings, icon: Star, color: "bg-pink-500" },
     { label: "Reseñas", value: reviews, icon: MessageSquare, color: "bg-teal-500" },
     { label: "Choferes", value: drivers, icon: Truck, color: "bg-violet-500" },
-    { label: "Admin Logístico", value: logisticsAdmins, icon: Building2, color: "bg-orange-500" },
+    { label: "Logístico", value: logisticsAdmins, icon: Building2, color: "bg-orange-500" },
     { label: "Admin Delivery", value: deliveryAdmins, icon: ShieldCheck, color: "bg-cyan-500" },
     { label: "Admin Buyer", value: buyerAdmins, icon: UserCheck, color: "bg-rose-500" },
     { label: "Admin Payment", value: paymentAdmins, icon: Wallet, color: "bg-green-500" },
